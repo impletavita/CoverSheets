@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "amd",
+    "declaration": true,
+    "outFile": "./lib/index",
+    "outDir": "./lib",
+    "strict": true
+  },
+  "include": ["src", "node_modules/@impleta/cover-sheets/lib"],
+  "exclude": ["node_modules", "**/__tests__/*"]
+}
