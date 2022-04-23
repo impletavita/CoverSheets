@@ -1,7 +1,0 @@
-
-// For non-namespace approach
-const Worksheet = require('../lib/index').Worksheet;
-const Spreadsheet = require('../lib/index').Spreadsheet;
-const Range = require('../lib/index').Range;
-
-export {Worksheet, Spreadsheet, Range};

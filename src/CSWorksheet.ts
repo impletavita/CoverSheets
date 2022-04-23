@@ -1,4 +1,4 @@
-class Worksheet {
+class CSWorksheet {
   sheet: GoogleAppsScript.Spreadsheet.Sheet;
 
   constructor(sheet: GoogleAppsScript.Spreadsheet.Sheet | string) {
@@ -19,4 +19,4 @@ class Worksheet {
   }
 }
 
-export {Worksheet}
+export {CSWorksheet}

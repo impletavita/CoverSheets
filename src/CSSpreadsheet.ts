@@ -1,5 +1,5 @@
-import { Worksheet } from "./Worksheet";
-class Spreadsheet {
+import { CSWorksheet } from "./CSWorksheet";
+class CSSpreadsheet {
   spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
   
   constructor(spreadsheet?: GoogleAppsScript.Spreadsheet.Spreadsheet) {
@@ -16,7 +16,7 @@ class Spreadsheet {
    * @returns Worksheet representing the worksheet of the specified name. If no 
    * such worksheet is found, returns null
    */
-  getSheetByName(sheetName: string): Worksheet | null {
+  getSheetByName(sheetName: string): CSWorksheet | null {
     const sheet = this.spreadsheet.getSheetByName(sheetName);
 
     if (!sheet) {
@@ -25,15 +25,15 @@ class Spreadsheet {
       return null;
     }
 
-    return new Worksheet(sheet);
+    return new CSWorksheet(sheet);
   }
 
   /**
    * 
    * @returns All the Worksheets in this spreadsheet.
    */
-  getSheets(): Worksheet[] {
-    return this.spreadsheet.getSheets().map(s => new Worksheet(s));
+  getSheets(): CSWorksheet[] {
+    return this.spreadsheet.getSheets().map(s => new CSWorksheet(s));
   }
 
   /**
@@ -42,14 +42,14 @@ class Spreadsheet {
    * @param sheetName The name of the sheet to add
    * @returns The newly added worksheet. If the sheet already exists, return that instead.
    */
-  addSheet(sheetName: string): Worksheet {
+  addSheet(sheetName: string): CSWorksheet {
     const sheet = this.getSheetByName(sheetName);
 
-    return sheet ?? new Worksheet(this.spreadsheet.insertSheet(sheetName));
+    return sheet ?? new CSWorksheet(this.spreadsheet.insertSheet(sheetName));
   }
 
-  cloneWorksheet(source: string, destination: string, activate:boolean = true): Worksheet | null {
-    const activateSheet = (worksheet:Worksheet) => {
+  cloneWorksheet(source: string, destination: string, activate:boolean = true): CSWorksheet | null {
+    const activateSheet = (worksheet:CSWorksheet) => {
       if (activate) {
         worksheet.sheet.activate();
       }
@@ -70,7 +70,7 @@ class Spreadsheet {
 
     const clonedSheet = sourceSheet.sheet.copyTo(this.spreadsheet);
     clonedSheet.setName(destination);
-    destinationSheet = new Worksheet(clonedSheet);
+    destinationSheet = new CSWorksheet(clonedSheet);
     
     activateSheet(destinationSheet);
 
@@ -78,4 +78,4 @@ class Spreadsheet {
   }
 }
 
-export {Spreadsheet}
+export {CSSpreadsheet as Spreadsheet}
