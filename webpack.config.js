@@ -1,6 +1,7 @@
 const path = require('path');
 
 module.exports = {
+  
   mode: 'production',
   entry: {
     main: path.resolve('./src', 'CoverSheets.js')

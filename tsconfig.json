@@ -3,11 +3,10 @@
     "target": "es6",
     "module": "amd",
     "declaration": true,
-    "outFile": "./lib/index.js",
-    "outDir": "./lib",
+    "outFile": "lib/index.js",
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src", "node_modules/@impleta/cover-sheets/lib"],
+  "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*"]
 }
