@@ -5,11 +5,12 @@
   "files": [
     "lib/**/*"
   ],
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
+  "main": "lib/CoverSheets.js",
+  "types": "lib/CoverSheets.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc && node scripts/add-namespace.js"
+    "dist": "tsc && node scripts/prep-lib-for-dist.js",
+    "deploy": "tsc && cd dist && node scripts/add-vars.js && clasp push && clasp open --webapp"
   },
   "author": "",
   "license": "ISC",

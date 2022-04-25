@@ -3,7 +3,7 @@
     "target": "es6",
     "module": "amd",
     "declaration": true,
-    "outFile": "lib/index.js",
+    "outFile": "lib/CoverSheets.js",
     "strict": true,
     "skipLibCheck": true
   },
