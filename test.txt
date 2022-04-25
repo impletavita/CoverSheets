@@ -1,4 +1,0 @@
-Removed
-	hello
-	    hello
-Removed
