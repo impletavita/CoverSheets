@@ -9,8 +9,9 @@
   "types": "lib/CoverSheets.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
     "dist": "tsc && node scripts/prep-lib-for-dist.js",
-    "deploy": "tsc && cd dist && node scripts/add-vars.js && clasp push && clasp open --webapp"
+    "testdeploy": "npm run dist && cd tests && clasp push"
   },
   "author": "",
   "license": "ISC",

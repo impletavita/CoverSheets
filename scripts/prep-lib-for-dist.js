@@ -11,7 +11,8 @@ const classes = content.matchAll(/class ([^\s]*)\s{/g)
 const classNames = [...classes].map(c => c[1]);  
 
 const declarations = classNames.map(c => `var ${c} = CoverSheets.${c}`);
-console.log(declarations.join(';\r\n'));
 
 fs.appendFileSync(fd, declarations.join(';\r\n'))
 fs.close(fd);
+
+fs.copyFileSync(dest, path.join(__dirname, "../tests/CoverSheets.js"));
