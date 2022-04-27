@@ -1,4 +1,4 @@
-function ConstructorParameterCannotBeNull() {
+function constructorParameterCannotBeNull() {
   try {
     const newWorksheet = new CoverSheets.CSWorksheet("DoesNotExist");
   } catch(e) {
@@ -6,4 +6,9 @@ function ConstructorParameterCannotBeNull() {
   }
 
   Logger.log(CoverSheets.CSUtils.getProperty("User", "Logdata"));
+}
+
+function newWorksheet() {
+  const newWorksheet = new CoverSheets.CSWorksheet("Test Sheet");
+  
 }

@@ -136,7 +136,7 @@ var CoverSheets;
     }
     CoverSheets.CSWorksheet = CSWorksheet;
 })(CoverSheets || (CoverSheets = {}));
-function ConstructorParameterCannotBeNull() {
+function constructorParameterCannotBeNull() {
     try {
         const newWorksheet = new CoverSheets.CSWorksheet("DoesNotExist");
     }
@@ -144,6 +144,9 @@ function ConstructorParameterCannotBeNull() {
         CoverSheets.CSUtils.log(e, "Toast");
     }
     Logger.log(CoverSheets.CSUtils.getProperty("User", "Logdata"));
+}
+function newWorksheet() {
+    const newWorksheet = new CoverSheets.CSWorksheet("Test Sheet");
 }
 var CSSpreadsheet = CoverSheets.CSSpreadsheet;
 var CSUtils = CoverSheets.CSUtils;
