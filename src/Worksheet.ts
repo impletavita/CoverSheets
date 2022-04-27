@@ -1,5 +1,5 @@
 namespace CoverSheets {
-  export class CSWorksheet {
+  export class Worksheet {
     sheet: GoogleAppsScript.Spreadsheet.Sheet;
 
     constructor(sheet: GoogleAppsScript.Spreadsheet.Sheet | string) {

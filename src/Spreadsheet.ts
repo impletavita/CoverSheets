@@ -1,5 +1,5 @@
 namespace CoverSheets {
-  export class CSSpreadsheet {
+  export class Spreadsheet {
     spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
     
     constructor(spreadsheet?: GoogleAppsScript.Spreadsheet.Spreadsheet) {
@@ -16,7 +16,7 @@ namespace CoverSheets {
      * @returns Worksheet representing the worksheet of the specified name. If no 
      * such worksheet is found, returns null
      */
-    getSheetByName(sheetName: string): CSWorksheet | null {
+    getSheetByName(sheetName: string): Worksheet | null {
       const sheet = this.spreadsheet.getSheetByName(sheetName);
 
       if (!sheet) {
@@ -25,15 +25,15 @@ namespace CoverSheets {
         return null;
       }
 
-      return new CSWorksheet(sheet);
+      return new Worksheet(sheet);
     }
 
     /**
      * 
      * @returns All the Worksheets in this spreadsheet.
      */
-    getSheets(): CSWorksheet[] {
-      return this.spreadsheet.getSheets().map(s => new CSWorksheet(s));
+    getSheets(): Worksheet[] {
+      return this.spreadsheet.getSheets().map(s => new Worksheet(s));
     }
 
     /**
@@ -42,14 +42,14 @@ namespace CoverSheets {
      * @param sheetName The name of the sheet to add
      * @returns The newly added worksheet. If the sheet already exists, return that instead.
      */
-    addSheet(sheetName: string): CSWorksheet {
+    addSheet(sheetName: string): Worksheet {
       const sheet = this.getSheetByName(sheetName);
 
-      return sheet ?? new CSWorksheet(this.spreadsheet.insertSheet(sheetName));
+      return sheet ?? new Worksheet(this.spreadsheet.insertSheet(sheetName));
     }
 
-    cloneWorksheet(source: string, destination: string, activate:boolean = true): CSWorksheet | null {
-      const activateSheet = (worksheet:CSWorksheet) => {
+    cloneWorksheet(source: string, destination: string, activate:boolean = true): Worksheet | null {
+      const activateSheet = (worksheet:Worksheet) => {
         if (activate) {
           worksheet.sheet.activate();
         }
@@ -70,7 +70,7 @@ namespace CoverSheets {
 
       const clonedSheet = sourceSheet.sheet.copyTo(this.spreadsheet);
       clonedSheet.setName(destination);
-      destinationSheet = new CSWorksheet(clonedSheet);
+      destinationSheet = new Worksheet(clonedSheet);
       
       activateSheet(destinationSheet);
 

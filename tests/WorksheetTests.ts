@@ -1,6 +1,6 @@
 function constructorParameterCannotBeNull() {
   try {
-    const newWorksheet = new CoverSheets.CSWorksheet("DoesNotExist");
+    const newWorksheet = new CoverSheets.Worksheet("DoesNotExist");
   } catch(e) {
     CoverSheets.CSUtils.log(e as string, "Toast");
   }
@@ -9,6 +9,6 @@ function constructorParameterCannotBeNull() {
 }
 
 function newWorksheet() {
-  const newWorksheet = new CoverSheets.CSWorksheet("Test Sheet");
-  
+  const newWorksheet = new CoverSheets.Worksheet("Test Sheet");
+  Logger.log(newWorksheet.sheet.getName());
 }
