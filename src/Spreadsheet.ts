@@ -1,5 +1,10 @@
 namespace CoverSheets {
   export class Spreadsheet {
+
+    static getActiveWorksheet(): Worksheet {
+      return new Worksheet(SpreadsheetApp.getActiveSheet());
+    }
+    
     spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
     
     constructor(spreadsheet?: GoogleAppsScript.Spreadsheet.Spreadsheet) {

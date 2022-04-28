@@ -18,5 +18,10 @@ namespace CoverSheets {
 
       this.sheet = sheet;
     }
+
+    getRange(row: number, column: number, numRows: number, numColumns: number): GoogleAppsScript.Spreadsheet.Range {
+      return this.sheet.getRange(row, column, numRows, numColumns)
+    }
+
   }
 }
