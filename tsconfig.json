@@ -7,6 +7,6 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src", "tests/**/*.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "lib", "tests/TypesReference.ts"]
 }

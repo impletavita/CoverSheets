@@ -69,7 +69,7 @@ namespace CoverSheets {
 
       const sourceSheet = this.getSheetByName(source);
       if (!sourceSheet) {
-        CSUtils.showError(`Missing worksheet named ${source}`);
+        Utils.showError(`Missing worksheet named ${source}`);
         return null;
       }
 

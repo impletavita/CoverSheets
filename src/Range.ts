@@ -8,7 +8,7 @@ namespace CoverSheets {
     numColumns?: number;
     headerInfo?: {
       type?: "None" | "RowBased" | "ColumnBased",
-      headerSize?: number;
+      headerSize: number;
     }
   }
 
@@ -21,7 +21,7 @@ namespace CoverSheets {
     numColumns: number;
     headerInfo: { 
       type?: "None" | "RowBased" | "ColumnBased"; 
-      headerSize?: number; 
+      headerSize: number; 
     };
     range: GoogleAppsScript.Spreadsheet.Range;
     
@@ -43,17 +43,32 @@ namespace CoverSheets {
       this.range = this.worksheet.getRange(this.row, this.column, this.numRows, this.numColumns);
     }
 
-    getHeaders() : string[][] {
+    getHeaders() : string[] {
       const values = this.range.getValues();
 
       switch(this.headerInfo.type) {
         case "RowBased":
-          return values.slice(0, this.headerInfo.headerSize);
+          let data = values.slice(0, this.headerInfo.headerSize + 1);
+          data.forEach(d => d.slice(1).forEach((dd,i) => d[i+1] = (dd === '' ? d[i] : dd)));
+          return data.reduce((r, a) => a.map((b, i) => (r[i] ?? '')+ b), []);
         case "ColumnBased":
-          return values.map(v => v.slice(0, this.headerInfo.headerSize));
+          let headerData = values.map(v => v.slice(0, this.headerInfo.headerSize));
+          headerData = Utils.transpose(headerData);
+          Logger.log(headerData);
+          headerData.forEach(d => d.slice(1).forEach((dd,i) => d[i+1] = (dd === '' ? d[i] : dd)));
+          Logger.log(headerData);
+          return headerData.reduce((r, a) => a.map((b, i) => (r[i] ?? '')+ b), []);
         default:
           return [];
       }
+    }
+
+    /**
+     * For the specified header, return all the values as an array
+     * @param header the name of the header
+     */
+    getValuesByHeader(header:string) :[] {
+      return [];
     }
   }
 }

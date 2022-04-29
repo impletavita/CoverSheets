@@ -1,6 +1,5 @@
 # Dependency directories
 node_modules/
 lib/
-dist/
 .clasp.json
-tests/Coversheets.js
+tests/CoverSheets.js
