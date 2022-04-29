@@ -4,7 +4,7 @@ namespace CoverSheets {
 }
 
 namespace CoverSheets {
-  export class CSUtils  {
+  export class Utils  {
     static showError(message: string) {
       SpreadsheetApp.getUi()
         .showModalDialog(HtmlService.createHtmlOutput(message), 'An error occurred');
@@ -13,7 +13,7 @@ namespace CoverSheets {
     static log(message: string, logType: logType = "Default", key: string = "Logdata") {
   
       const addPropertyLog = () => {
-        const properties = CSUtils.getProperties(logType as propertiesType);
+        const properties = Utils.getProperties(logType as propertiesType);
         const logs = properties.getProperty(key)?.split(",") ?? [];
         logs.unshift(message);
         properties.setProperty(key, logs.join());
@@ -21,7 +21,7 @@ namespace CoverSheets {
 
       const logger = {
         Default: () => Logger.log(message),
-        Toast: () => CSUtils.toast(message, key),
+        Toast: () => Utils.toast(message, key),
         User: () => addPropertyLog(),
         Script: () => addPropertyLog(),
         Document: () => addPropertyLog()
@@ -51,8 +51,12 @@ namespace CoverSheets {
     }
 
     static getProperty(propType: propertiesType, key: string) {
-      const properties = CSUtils.getProperties(propType);
+      const properties = Utils.getProperties(propType);
       return properties.getProperty(key);
+    }
+
+    static transpose(array:Array<any>): [] {
+        return array[0].map((_:any, colIndex:number) => array.map(row => row[colIndex]));
     }
   }
 }
