@@ -1,6 +1,6 @@
 namespace CoverSheets {
-  export type propertiesType = "User" | "Script" | "Document";
-  export type logType = "Default" | "Toast" | propertiesType;
+  export type PropertiesType = "User" | "Script" | "Document";
+  export type LogType = "Default" | "Toast" | PropertiesType;
 }
 
 namespace CoverSheets {
@@ -10,10 +10,10 @@ namespace CoverSheets {
         .showModalDialog(HtmlService.createHtmlOutput(message), 'An error occurred');
     }
 
-    static log(message: string, logType: logType = "Default", key: string = "Logdata") {
+    static log(message: string, logType: LogType = "Default", key: string = "Logdata") {
   
       const addPropertyLog = () => {
-        const properties = Utils.getProperties(logType as propertiesType);
+        const properties = Utils.getProperties(logType as PropertiesType);
         const logs = properties.getProperty(key)?.split(",") ?? [];
         logs.unshift(message);
         properties.setProperty(key, logs.join());
@@ -29,7 +29,7 @@ namespace CoverSheets {
       logger[logType]();
     }
 
-    static getProperties(propType: propertiesType) {
+    static getProperties(propType: PropertiesType) {
       switch(propType) {
         case "User":
           return PropertiesService.getUserProperties();
@@ -50,7 +50,7 @@ namespace CoverSheets {
       SpreadsheetApp.getActiveSpreadsheet().toast(message, title, timeout);
     }
 
-    static getProperty(propType: propertiesType, key: string) {
+    static getProperty(propType: PropertiesType, key: string) {
       const properties = Utils.getProperties(propType);
       return properties.getProperty(key);
     }

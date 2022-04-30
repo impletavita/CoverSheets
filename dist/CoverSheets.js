@@ -56,36 +56,46 @@ var CoverSheets;
 (function (CoverSheets) {
     class Range {
         constructor(params) {
-            var _a, _b, _c, _d, _e;
-            if (params === null || params === void 0 ? void 0 : params.sheetName) {
-                this.sheetName = params.sheetName;
-                this.worksheet = new CoverSheets.Spreadsheet().getSheetByName(this.sheetName);
+            this.rangeOptions = this.initParams(params);
+            if (this.rangeOptions.sheetName) {
+                this.rangeOptions.worksheet = new CoverSheets.Spreadsheet().getSheetByName(this.rangeOptions.sheetName);
             }
-            else {
-                this.worksheet = CoverSheets.Spreadsheet.getActiveWorksheet();
-                this.sheetName = this.worksheet.sheet.getName();
+            this.range = this.rangeOptions.worksheet.getRange(this.rangeOptions.row, this.rangeOptions.column, this.rangeOptions.numRows, this.rangeOptions.numColumns);
+        }
+        initParams(params) {
+            const worksheet = CoverSheets.Spreadsheet.getActiveWorksheet();
+            const defaults = {
+                worksheet: worksheet,
+                sheetName: worksheet.sheet.getName(),
+                row: 1,
+                column: 1,
+                numRows: 1,
+                numColumns: 1,
+                headerType: "None",
+                headerSize: 1
+            };
+            if (params === null || params === void 0 ? void 0 : params.worksheet) {
+                params.sheetName = params.worksheet.sheet.getName();
             }
-            this.row = (_a = params === null || params === void 0 ? void 0 : params.row) !== null && _a !== void 0 ? _a : 1;
-            this.column = (_b = params === null || params === void 0 ? void 0 : params.column) !== null && _b !== void 0 ? _b : 1;
-            this.numRows = (_c = params === null || params === void 0 ? void 0 : params.numRows) !== null && _c !== void 0 ? _c : 1;
-            this.numColumns = (_d = params === null || params === void 0 ? void 0 : params.numColumns) !== null && _d !== void 0 ? _d : 1;
-            this.headerInfo = (_e = params === null || params === void 0 ? void 0 : params.headerInfo) !== null && _e !== void 0 ? _e : { type: "None", headerSize: 1 };
-            this.range = this.worksheet.getRange(this.row, this.column, this.numRows, this.numColumns);
+            else if (params === null || params === void 0 ? void 0 : params.sheetName) {
+                params.worksheet = new CoverSheets.Spreadsheet().getSheetByName(params.sheetName);
+            }
+            const retVal = Object.assign(Object.assign({}, defaults), params);
+            return retVal;
         }
         getHeaders() {
             const values = this.range.getValues();
-            switch (this.headerInfo.type) {
+            const coaleseHeaders = (headers) => {
+                headers.forEach(d => d.slice(1).forEach((dd, i) => d[i + 1] = (dd === '' ? d[i] : dd)));
+                return headers.reduce((r, a) => a.map((b, i) => { var _a; return ((_a = r[i]) !== null && _a !== void 0 ? _a : '') + b; }), []);
+            };
+            switch (this.rangeOptions.headerType) {
                 case "RowBased":
-                    let data = values.slice(0, this.headerInfo.headerSize + 1);
-                    data.forEach(d => d.slice(1).forEach((dd, i) => d[i + 1] = (dd === '' ? d[i] : dd)));
-                    return data.reduce((r, a) => a.map((b, i) => { var _a; return ((_a = r[i]) !== null && _a !== void 0 ? _a : '') + b; }), []);
+                    return coaleseHeaders(values.slice(0, this.rangeOptions.headerSize));
                 case "ColumnBased":
-                    let headerData = values.map(v => v.slice(0, this.headerInfo.headerSize));
+                    let headerData = values.map(v => v.slice(0, this.rangeOptions.headerSize));
                     headerData = CoverSheets.Utils.transpose(headerData);
-                    Logger.log(headerData);
-                    headerData.forEach(d => d.slice(1).forEach((dd, i) => d[i + 1] = (dd === '' ? d[i] : dd)));
-                    Logger.log(headerData);
-                    return headerData.reduce((r, a) => a.map((b, i) => { var _a; return ((_a = r[i]) !== null && _a !== void 0 ? _a : '') + b; }), []);
+                    return coaleseHeaders(headerData);
                 default:
                     return [];
             }
@@ -95,7 +105,14 @@ var CoverSheets;
          * @param header the name of the header
          */
         getValuesByHeader(header) {
-            return [];
+            let valuesByHeader = [];
+            const headers = this.getHeaders();
+            const headerIndex = headers.indexOf(header);
+            const values = this.range.getValues().slice(this.rangeOptions.headerSize);
+            if (headerIndex > -1) {
+                valuesByHeader = values.map(v => v[headerIndex]);
+            }
+            return valuesByHeader;
         }
     }
     CoverSheets.Range = Range;

@@ -1,63 +1,77 @@
 
 namespace CoverSheets {
-  export type rangeContructorParams = {
-    sheetName?: string;
-    row?: number;
-    column?: number;
-    numRows?: number;
-    numColumns?: number;
-    headerInfo?: {
-      type?: "None" | "RowBased" | "ColumnBased",
-      headerSize: number;
-    }
-  }
+  export type HeaderType = "None" | "RowBased" | "ColumnBased";
 
-  export class Range {
-    sheetName: string;
+  export type RangeOptions = {
     worksheet: Worksheet;
+    sheetName: string;
     row: number;
     column: number;
     numRows: number;
     numColumns: number;
-    headerInfo: { 
-      type?: "None" | "RowBased" | "ColumnBased"; 
-      headerSize: number; 
-    };
+    headerType: HeaderType
+    headerSize: number;
+  }
+
+  export class Range {
+    rangeOptions: RangeOptions;
+
     range: GoogleAppsScript.Spreadsheet.Range;
     
-    constructor(params?: rangeContructorParams) {
-      if (params?.sheetName) {
-        this.sheetName = params.sheetName;
-        this.worksheet = new Spreadsheet().getSheetByName(this.sheetName) as Worksheet;
-      } else {
-        this.worksheet = Spreadsheet.getActiveWorksheet();
-        this.sheetName = this.worksheet.sheet.getName();
+    constructor(params?: Partial<RangeOptions>) {
+      this.rangeOptions = this.initParams(params);
+
+      if (this.rangeOptions.sheetName) {
+        this.rangeOptions.worksheet = new Spreadsheet().getSheetByName(this.rangeOptions.sheetName) as Worksheet;
       }
 
-      this.row = params?.row ?? 1;
-      this.column = params?.column ?? 1;
-      this.numRows = params?.numRows ?? 1;
-      this.numColumns = params?.numColumns ?? 1;
-      this.headerInfo = params?.headerInfo ?? {type: "None", headerSize: 1};
+      this.range = this.rangeOptions.worksheet.getRange(this.rangeOptions.row, 
+        this.rangeOptions.column, this.rangeOptions.numRows, this.rangeOptions.numColumns);
+    }
+    
+    initParams(params?: Partial<RangeOptions> ): RangeOptions {
+      const worksheet = Spreadsheet.getActiveWorksheet();
+      
+      const defaults: RangeOptions = {
+        worksheet: worksheet,
+        sheetName: worksheet.sheet.getName(),
+        row: 1,
+        column: 1,
+        numRows: 1,
+        numColumns: 1,
+        headerType: "None",
+        headerSize: 1
+      }
 
-      this.range = this.worksheet.getRange(this.row, this.column, this.numRows, this.numColumns);
+      if (params?.worksheet) {
+        params.sheetName = params.worksheet.sheet.getName();
+      } else if (params?.sheetName) {
+        params.worksheet = new Spreadsheet().getSheetByName(params.sheetName) as Worksheet;
+      }
+
+      const retVal = {
+        ...defaults,
+        ...params
+      }
+
+      return retVal;
     }
 
     getHeaders() : string[] {
       const values = this.range.getValues();
+   
+      const coaleseHeaders = (headers:string[][]):string[] =>  {
+        headers.forEach(d => d.slice(1).forEach((dd,i) => d[i+1] = (dd === '' ? d[i] : dd)));
+        return headers.reduce((r, a) => a.map((b, i) => (r[i] ?? '')+ b), []);
+      }
 
-      switch(this.headerInfo.type) {
+      switch(this.rangeOptions.headerType) {
         case "RowBased":
-          let data = values.slice(0, this.headerInfo.headerSize + 1);
-          data.forEach(d => d.slice(1).forEach((dd,i) => d[i+1] = (dd === '' ? d[i] : dd)));
-          return data.reduce((r, a) => a.map((b, i) => (r[i] ?? '')+ b), []);
+          return coaleseHeaders(values.slice(0, this.rangeOptions.headerSize));
         case "ColumnBased":
-          let headerData = values.map(v => v.slice(0, this.headerInfo.headerSize));
+          let headerData = values.map(v => v.slice(0, this.rangeOptions.headerSize));
           headerData = Utils.transpose(headerData);
-          Logger.log(headerData);
-          headerData.forEach(d => d.slice(1).forEach((dd,i) => d[i+1] = (dd === '' ? d[i] : dd)));
-          Logger.log(headerData);
-          return headerData.reduce((r, a) => a.map((b, i) => (r[i] ?? '')+ b), []);
+          return coaleseHeaders(headerData);
         default:
           return [];
       }
@@ -67,8 +81,18 @@ namespace CoverSheets {
      * For the specified header, return all the values as an array
      * @param header the name of the header
      */
-    getValuesByHeader(header:string) :[] {
-      return [];
+    getValuesByHeader(header:string) :any[] {
+      let valuesByHeader = [];
+
+      const headers = this.getHeaders();
+      const headerIndex = headers.indexOf(header);
+      const values = this.range.getValues().slice(this.rangeOptions.headerSize);
+
+      if (headerIndex > -1) {
+        valuesByHeader = values.map(v => v[headerIndex]);
+      }
+
+      return valuesByHeader;
     }
   }
 }
