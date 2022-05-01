@@ -43,10 +43,10 @@ function constructorParameterCannotBeNull() {
   try {
     const newWorksheet = new CoverSheets.Worksheet("DoesNotExist");
   } catch(e) {
-    CoverSheets.CSUtils.log(e as string, "Toast");
+    CoverSheets.Utils.log(e as string, "Toast");
   }
 
-  Logger.log(CoverSheets.CSUtils.getProperty("User", "Logdata"));
+  Logger.log(CoverSheets.Utils.getProperty("User", "Logdata"));
 }
 
 function newWorksheet() {
