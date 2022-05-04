@@ -1,4 +1,3 @@
-
 namespace CoverSheets {
   export type HeaderType = "None" | "RowBased" | "ColumnBased";
 
@@ -31,7 +30,7 @@ namespace CoverSheets {
     
     initParams(params?: Partial<RangeOptions> ): RangeOptions {
       const worksheet = Spreadsheet.getActiveWorksheet();
-      
+
       const defaults: RangeOptions = {
         worksheet: worksheet,
         sheetName: worksheet.sheet.getName(),
@@ -82,7 +81,7 @@ namespace CoverSheets {
      * @param header the name of the header
      */
     getValuesByHeader(header:string) :any[] {
-      let valuesByHeader = [];
+      let valuesByHeader:any[] = [];
 
       const headers = this.getHeaders();
       const headerIndex = headers.indexOf(header);

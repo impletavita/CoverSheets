@@ -22,6 +22,5 @@ namespace CoverSheets {
     getRange(row: number, column: number, numRows: number, numColumns: number): GoogleAppsScript.Spreadsheet.Range {
       return this.sheet.getRange(row, column, numRows, numColumns)
     }
-
   }
 }

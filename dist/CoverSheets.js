@@ -1,59 +1,6 @@
 "use strict";
 var CoverSheets;
 (function (CoverSheets) {
-    class Utils {
-        static showError(message) {
-            SpreadsheetApp.getUi()
-                .showModalDialog(HtmlService.createHtmlOutput(message), 'An error occurred');
-        }
-        static log(message, logType = "Default", key = "Logdata") {
-            const addPropertyLog = () => {
-                var _a, _b;
-                const properties = Utils.getProperties(logType);
-                const logs = (_b = (_a = properties.getProperty(key)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
-                logs.unshift(message);
-                properties.setProperty(key, logs.join());
-            };
-            const logger = {
-                Default: () => Logger.log(message),
-                Toast: () => Utils.toast(message, key),
-                User: () => addPropertyLog(),
-                Script: () => addPropertyLog(),
-                Document: () => addPropertyLog()
-            };
-            logger[logType]();
-        }
-        static getProperties(propType) {
-            switch (propType) {
-                case "User":
-                    return PropertiesService.getUserProperties();
-                case "Document":
-                    return PropertiesService.getDocumentProperties();
-                case "Script":
-                    return PropertiesService.getScriptProperties();
-            }
-        }
-        /**
-         * Displays a "Toast" message on the bottom left
-         * @param message message to display.
-         * @param title Optional title; default is empty
-         * @param timeout Option timeout; default is 5 seconds
-         */
-        static toast(message, title = "", timeout = 5) {
-            SpreadsheetApp.getActiveSpreadsheet().toast(message, title, timeout);
-        }
-        static getProperty(propType, key) {
-            const properties = Utils.getProperties(propType);
-            return properties.getProperty(key);
-        }
-        static transpose(array) {
-            return array[0].map((_, colIndex) => array.map(row => row[colIndex]));
-        }
-    }
-    CoverSheets.Utils = Utils;
-})(CoverSheets || (CoverSheets = {}));
-var CoverSheets;
-(function (CoverSheets) {
     class Range {
         constructor(params) {
             this.rangeOptions = this.initParams(params);
@@ -64,6 +11,7 @@ var CoverSheets;
         }
         initParams(params) {
             const worksheet = CoverSheets.Spreadsheet.getActiveWorksheet();
+            console.log(`Sheet Name: ${typeof worksheet.sheet}`);
             const defaults = {
                 worksheet: worksheet,
                 sheetName: worksheet.sheet.getName(),
@@ -188,6 +136,59 @@ var CoverSheets;
 })(CoverSheets || (CoverSheets = {}));
 var CoverSheets;
 (function (CoverSheets) {
+    class Utils {
+        static showError(message) {
+            SpreadsheetApp.getUi()
+                .showModalDialog(HtmlService.createHtmlOutput(message), 'An error occurred');
+        }
+        static log(message, logType = "Default", key = "Logdata") {
+            const addPropertyLog = () => {
+                var _a, _b;
+                const properties = Utils.getProperties(logType);
+                const logs = (_b = (_a = properties.getProperty(key)) === null || _a === void 0 ? void 0 : _a.split(",")) !== null && _b !== void 0 ? _b : [];
+                logs.unshift(message);
+                properties.setProperty(key, logs.join());
+            };
+            const logger = {
+                Default: () => Logger.log(message),
+                Toast: () => Utils.toast(message, key),
+                User: () => addPropertyLog(),
+                Script: () => addPropertyLog(),
+                Document: () => addPropertyLog()
+            };
+            logger[logType]();
+        }
+        static getProperties(propType) {
+            switch (propType) {
+                case "User":
+                    return PropertiesService.getUserProperties();
+                case "Document":
+                    return PropertiesService.getDocumentProperties();
+                case "Script":
+                    return PropertiesService.getScriptProperties();
+            }
+        }
+        /**
+         * Displays a "Toast" message on the bottom left
+         * @param message message to display.
+         * @param title Optional title; default is empty
+         * @param timeout Option timeout; default is 5 seconds
+         */
+        static toast(message, title = "", timeout = 5) {
+            SpreadsheetApp.getActiveSpreadsheet().toast(message, title, timeout);
+        }
+        static getProperty(propType, key) {
+            const properties = Utils.getProperties(propType);
+            return properties.getProperty(key);
+        }
+        static transpose(array) {
+            return array[0].map((_, colIndex) => array.map(row => row[colIndex]));
+        }
+    }
+    CoverSheets.Utils = Utils;
+})(CoverSheets || (CoverSheets = {}));
+var CoverSheets;
+(function (CoverSheets) {
     class Worksheet {
         constructor(sheet) {
             if (!sheet) {
@@ -210,7 +211,12 @@ var CoverSheets;
     }
     CoverSheets.Worksheet = Worksheet;
 })(CoverSheets || (CoverSheets = {}));
-var Utils = CoverSheets.Utils;
 var Range = CoverSheets.Range;
 var Spreadsheet = CoverSheets.Spreadsheet;
-var Worksheet = CoverSheets.Worksheet
+var Utils = CoverSheets.Utils;
+var Worksheet = CoverSheets.Worksheet;
+var exports = exports || {};
+exports.Range = CoverSheets.Range;
+exports.Spreadsheet = CoverSheets.Spreadsheet;
+exports.Utils = CoverSheets.Utils;
+exports.Worksheet = CoverSheets.Worksheet;

@@ -12,7 +12,12 @@ const classNames = [...classes].map(c => c[1]);
 
 const declarations = classNames.map(c => `var ${c} = CoverSheets.${c}`);
 
-fs.appendFileSync(fd, declarations.join(';\r\n'))
+fs.appendFileSync(fd, `${declarations.join(';\r\n')};\r\n`)
+
+fs.appendFileSync(fd, "var exports = exports || {};\r\n");
+const exportDeclarations = classNames.map(c => `exports.${c} = CoverSheets.${c}`);
+fs.appendFileSync(fd, `${exportDeclarations.join(';\r\n')};\r\n`);
+
 fs.close(fd);
 
-fs.copyFileSync(dest, path.join(__dirname, "../tests/CoverSheets.js"));
+// fs.copyFileSync(dest, path.join(__dirname, "../tests/CoverSheets.js"));
