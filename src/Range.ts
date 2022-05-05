@@ -85,8 +85,15 @@ namespace CoverSheets {
 
       const headers = this.getHeaders();
       const headerIndex = headers.indexOf(header);
-      const values = this.range.getValues().slice(this.rangeOptions.headerSize);
 
+      let values = this.range.getValues();
+      if (this.rangeOptions.headerType == "RowBased") {
+        values = values.slice(this.rangeOptions.headerSize);
+      } else if (this.rangeOptions.headerType == "ColumnBased") {
+        values = Utils.transpose(values);
+        values = values.slice(this.rangeOptions.headerSize);
+      }
+    
       if (headerIndex > -1) {
         valuesByHeader = values.map(v => v[headerIndex]);
       }

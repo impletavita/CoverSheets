@@ -10,7 +10,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
-    "dist": "node scripts/prep-lib-for-dist.js",
+    "dist": "tsc && node scripts/prep-lib-for-dist.js",
     "testdeploy": "npm run dist && cd tests && clasp push"
   },
   "author": "",

@@ -1,10 +1,23 @@
+const { Worksheet } = require("../../dist/CoverSheets");
+
 class Range {
   constructor(row, column, numRows, numColumns) {
-
+    this.row = row;
+    this.column = column;
+    this.numRows = numRows;
+    this.numColumns = numColumns;
   }
 
   getValues() {
-    return [];
+    const data = []
+    for(let r = 1; r <= this.numRows; r++) {
+      data.push(new Array(this.numColumns).fill().map((v, c) => `VALUE_${r}_${c+1}`));
+    }
+    return data;
+  }
+
+  getRangeData() {
+    
   }
 }
 
@@ -27,6 +40,10 @@ global.SpreadsheetApp = {
     return new Sheet('ActiveSheet');
   },
   getActiveSpreadsheet: () => ({
-    getSheetByName: (name) => {return new Sheet(name)},
+    getSheetByName: (name) => {
+      return new Sheet(name)
+    },
   }),
 };
+
+global.Worksheet1 = new Worksheet("Worksheet1");
