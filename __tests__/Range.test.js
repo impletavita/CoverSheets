@@ -56,3 +56,44 @@ test('Range with one column of headers', () => {
   expect(range.getValuesByHeader("VALUE_1_1")).toEqual(['VALUE_1_2', 'VALUE_1_3', 'VALUE_1_4']);
   expect(range.getValuesByHeader("VALUE_3_1")).toEqual(['VALUE_3_2', 'VALUE_3_3', 'VALUE_3_4']);
 })
+
+test('Range with 3 rows of headers', () => {
+  range = new CoverSheets.Range({
+    sheetName: 'Some Sheet',
+    row: 1, column: 1, numRows: 5, numColumns: 3,
+    headerType: "RowBased", headerSize: 3
+  })
+
+  expect(range.getHeaders()).toEqual(
+    [
+      'VALUE_1_1VALUE_2_1VALUE_3_1',
+      'VALUE_1_2VALUE_2_2VALUE_3_2',
+      'VALUE_1_3VALUE_2_3VALUE_3_3'
+    ])
+})
+
+test('Range with 3 columns of headers', () => {
+  range = new CoverSheets.Range({
+    sheetName: 'Some Sheet',
+    row: 1, column: 1, numRows: 4, numColumns: 6,
+    headerType: "ColumnBased", headerSize: 3
+  })
+
+  expect(range.getHeaders()).toEqual(
+    [
+      'VALUE_1_1VALUE_1_2VALUE_1_3',
+      'VALUE_2_1VALUE_2_2VALUE_2_3',
+      'VALUE_3_1VALUE_3_2VALUE_3_3',
+      'VALUE_4_1VALUE_4_2VALUE_4_3'
+    ])
+})
+
+test('Range with merged rows in header', () => {
+  range = new CoverSheets.Range({
+    sheetName: 'Some Sheet',
+    row: 1, column: 1, numRows: 4, numColumns: 6,
+    headerType: "RowBased", headerSize: 3
+  })
+  range.range.mergeRows(1, 1, 2);
+  console.log(range.getHeaders());
+})

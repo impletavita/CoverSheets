@@ -1,3 +1,4 @@
+const { start } = require("repl");
 const { Worksheet } = require("../../dist/CoverSheets");
 
 class Range {
@@ -9,6 +10,10 @@ class Range {
   }
 
   getValues() {
+    return this.values ?? (this.values = this.getData());
+  }
+
+  getData() {
     const data = []
     for(let r = 1; r <= this.numRows; r++) {
       data.push(new Array(this.numColumns).fill().map((v, c) => `VALUE_${r}_${c+1}`));
@@ -16,8 +21,21 @@ class Range {
     return data;
   }
 
-  getRangeData() {
+  mergeRows(column, startRow, endRow) {
+
+    if (startRow == endRow) {
+      return;
+    }
+
+    if (startRow > endRow) {
+      [startRow, endRow] = [endRow, startRow]
+    }
+
+    this.getValues();
     
+    for(let row = startRow; row < endRow; row++) {
+      this.values[row][column] = '';
+    }
   }
 }
 
