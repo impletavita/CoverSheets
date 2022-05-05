@@ -1,5 +1,4 @@
-const { start } = require("repl");
-const { Worksheet } = require("../../dist/CoverSheets");
+const { Worksheet } = require("../dist/CoverSheets");
 
 class Range {
   constructor(row, column, numRows, numColumns) {
