@@ -13,21 +13,23 @@ namespace CoverSheets {
   }
 
   export class Range {
-    rangeOptions: RangeOptions;
+    headerType: HeaderType;
+    headerSize: number;
+    worksheet: Worksheet;
 
     range: GoogleAppsScript.Spreadsheet.Range;
-    
+
     constructor(params?: Partial<RangeOptions>) {
-      this.rangeOptions = this.initParams(params);
+      const paramsWithDefaults = this.initParams(params);
+      
+      this.headerType = paramsWithDefaults.headerType;
+      this.headerSize = paramsWithDefaults.headerSize;
+      this.worksheet = paramsWithDefaults.worksheet;
 
-      if (this.rangeOptions.sheetName) {
-        this.rangeOptions.worksheet = new Spreadsheet().getSheetByName(this.rangeOptions.sheetName) as Worksheet;
-      }
-
-      this.range = this.rangeOptions.worksheet.getRange(this.rangeOptions.row, 
-        this.rangeOptions.column, this.rangeOptions.numRows, this.rangeOptions.numColumns);
+      this.range = paramsWithDefaults.worksheet.getRange(paramsWithDefaults.row, 
+        paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
     }
-    
+
     initParams(params?: Partial<RangeOptions> ): RangeOptions {
       const worksheet = Spreadsheet.getActiveWorksheet();
 
@@ -64,11 +66,11 @@ namespace CoverSheets {
         return headers.reduce((r, a) => a.map((b, i) => (r[i] ?? '')+ b), []);
       }
 
-      switch(this.rangeOptions.headerType) {
+      switch(this.headerType) {
         case "RowBased":
-          return coaleseHeaders(values.slice(0, this.rangeOptions.headerSize));
+          return coaleseHeaders(values.slice(0, this.headerSize));
         case "ColumnBased":
-          let headerData = values.map(v => v.slice(0, this.rangeOptions.headerSize));
+          let headerData = values.map(v => v.slice(0, this.headerSize));
           headerData = Utils.transpose(headerData);
           return coaleseHeaders(headerData);
         default:
@@ -87,11 +89,11 @@ namespace CoverSheets {
       const headerIndex = headers.indexOf(header);
 
       let values = this.range.getValues();
-      if (this.rangeOptions.headerType == "RowBased") {
-        values = values.slice(this.rangeOptions.headerSize);
-      } else if (this.rangeOptions.headerType == "ColumnBased") {
+      if (this.headerType == "RowBased") {
+        values = values.slice(this.headerSize);
+      } else if (this.headerType == "ColumnBased") {
         values = Utils.transpose(values);
-        values = values.slice(this.rangeOptions.headerSize);
+        values = values.slice(this.headerSize);
       }
     
       if (headerIndex > -1) {
@@ -99,6 +101,21 @@ namespace CoverSheets {
       }
 
       return valuesByHeader;
+    }
+
+    /**
+     * Replace all the data in this range. Range will be resized as necessary.
+     * @param data new data to replace with
+     */
+    replaceData(data:any[]) {
+      let oldRange = this.range;
+
+      let newRange = this.range.getSheet().getRange(this.range.getRow(), this.range.getColumn(),
+        data.length, data[0].length);
+      
+      oldRange.clearContent();
+      this.range = newRange;
+      newRange.setValues(data);
     }
   }
 }

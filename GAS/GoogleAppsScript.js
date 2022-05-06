@@ -1,15 +1,44 @@
 const { Worksheet } = require("../dist/CoverSheets");
 
 class Range {
-  constructor(row, column, numRows, numColumns) {
+  constructor(row, column, numRows, numColumns, sheet) {
     this.row = row;
     this.column = column;
     this.numRows = numRows;
     this.numColumns = numColumns;
+    this.sheet = sheet;
   }
 
+  getSheet() {
+    return this.sheet;
+  }
+
+  getRow() {
+    return this.row;
+  }
+
+  getColumn() {
+    return this.column;
+  }
+  
   getValues() {
     return this.values ?? (this.values = this.getData());
+  }
+
+  getNumRows() {
+    return this.numRows;
+  }
+
+  getNumColumns() {
+    return this.numColumns;
+  }
+
+  setValues(data) {
+    this.values = data;
+  }
+
+  clearContent() {
+    this.values = Array(this.numRows).map(r => new Array(this.numColumns).fill(''));
   }
 
   getData() {
@@ -48,7 +77,7 @@ class Sheet {
   }
 
   getRange(row, column, numRows, numColumns) {
-    return new Range(row, column, numRows, numColumns);
+    return new Range(row, column, numRows, numColumns, this);
   }
 }
 

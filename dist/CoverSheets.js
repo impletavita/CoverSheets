@@ -3,11 +3,11 @@ var CoverSheets;
 (function (CoverSheets) {
     class Range {
         constructor(params) {
-            this.rangeOptions = this.initParams(params);
-            if (this.rangeOptions.sheetName) {
-                this.rangeOptions.worksheet = new CoverSheets.Spreadsheet().getSheetByName(this.rangeOptions.sheetName);
-            }
-            this.range = this.rangeOptions.worksheet.getRange(this.rangeOptions.row, this.rangeOptions.column, this.rangeOptions.numRows, this.rangeOptions.numColumns);
+            const paramsWithDefaults = this.initParams(params);
+            this.headerType = paramsWithDefaults.headerType;
+            this.headerSize = paramsWithDefaults.headerSize;
+            this.worksheet = paramsWithDefaults.worksheet;
+            this.range = paramsWithDefaults.worksheet.getRange(paramsWithDefaults.row, paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
         }
         initParams(params) {
             const worksheet = CoverSheets.Spreadsheet.getActiveWorksheet();
@@ -36,11 +36,11 @@ var CoverSheets;
                 headers.forEach(d => d.slice(1).forEach((dd, i) => d[i + 1] = (dd === '' ? d[i] : dd)));
                 return headers.reduce((r, a) => a.map((b, i) => { var _a; return ((_a = r[i]) !== null && _a !== void 0 ? _a : '') + b; }), []);
             };
-            switch (this.rangeOptions.headerType) {
+            switch (this.headerType) {
                 case "RowBased":
-                    return coaleseHeaders(values.slice(0, this.rangeOptions.headerSize));
+                    return coaleseHeaders(values.slice(0, this.headerSize));
                 case "ColumnBased":
-                    let headerData = values.map(v => v.slice(0, this.rangeOptions.headerSize));
+                    let headerData = values.map(v => v.slice(0, this.headerSize));
                     headerData = CoverSheets.Utils.transpose(headerData);
                     return coaleseHeaders(headerData);
                 default:
@@ -56,17 +56,28 @@ var CoverSheets;
             const headers = this.getHeaders();
             const headerIndex = headers.indexOf(header);
             let values = this.range.getValues();
-            if (this.rangeOptions.headerType == "RowBased") {
-                values = values.slice(this.rangeOptions.headerSize);
+            if (this.headerType == "RowBased") {
+                values = values.slice(this.headerSize);
             }
-            else if (this.rangeOptions.headerType == "ColumnBased") {
+            else if (this.headerType == "ColumnBased") {
                 values = CoverSheets.Utils.transpose(values);
-                values = values.slice(this.rangeOptions.headerSize);
+                values = values.slice(this.headerSize);
             }
             if (headerIndex > -1) {
                 valuesByHeader = values.map(v => v[headerIndex]);
             }
             return valuesByHeader;
+        }
+        /**
+         * Replace all the data in this range. Range will be resized as necessary.
+         * @param data new data to replace with
+         */
+        replaceData(data) {
+            let oldRange = this.range;
+            let newRange = this.range.getSheet().getRange(this.range.getRow(), this.range.getColumn(), data.length, data[0].length);
+            oldRange.clearContent();
+            this.range = newRange;
+            newRange.setValues(data);
         }
     }
     CoverSheets.Range = Range;

@@ -3,15 +3,13 @@ const CoverSheets =  require('../dist/CoverSheets');
 test('Range constructor with no parameters should default to active sheet', () => {
   let range = new CoverSheets.Range();
   expect(range).not.toBeNull();
-  expect(range.rangeOptions.worksheet.sheet.getName()).toBe("ActiveSheet");
-  expect(range.rangeOptions).toMatchObject({
-    sheetName:'ActiveSheet',
+  expect(range.worksheet.sheet.getName()).toBe("ActiveSheet");
+  expect(range.range).toMatchObject({
     row: 1,
     column: 1,
     numRows: 1,
     numColumns: 1,
-    headerType: "None",
-    headerSize: 1
+    sheet: range.worksheet.sheet
   });
 
   expect(range.getHeaders()).toEqual([]);
@@ -23,14 +21,14 @@ test('Range constructor with worksheet updates sheetName', () => {
   let range = new CoverSheets.Range({
     worksheet: Worksheet1,
   });
-  expect(range.rangeOptions.sheetName).toEqual("Worksheet1");
+  expect(range.worksheet.sheet.getName()).toEqual("Worksheet1");
 
   // test that worksheet takes precedence over sheetName
   range = new CoverSheets.Range({
     worksheet: Worksheet1,
     sheetName: "SomethingElse"
   });
-  expect(range.rangeOptions.sheetName).toEqual("Worksheet1");
+  expect(range.range.sheet.getName()).toEqual("Worksheet1");
 })
 
 test('Range with one row of headers', () => {
@@ -96,4 +94,47 @@ test('Range with merged rows in header', () => {
   })
   range.range.mergeRows(1, 1, 2);
   console.log(range.getHeaders());
+})
+
+test('replaceData', () => {
+  range = new CoverSheets.Range({
+    sheetName: 'Some Sheet',
+    row: 4, column: 5, numRows: 3, numColumns: 2
+  })
+  
+  expect(range.range.getValues()).toEqual(
+    [
+      [ 'VALUE_1_1', 'VALUE_1_2' ],
+      [ 'VALUE_2_1', 'VALUE_2_2' ],
+      [ 'VALUE_3_1', 'VALUE_3_2' ]
+    ]
+  )
+
+  let newValues = [
+    ['NEW_VALUE_1_1', 'NEW_VALUE_1_2', 'NEW_VALUE_1_3', 'NEW_VALUE_1_4'],
+    ['NEW_VALUE_2_1', 'NEW_VALUE_2_2', 'NEW_VALUE_2_3', 'NEW_VALUE_2_4'],
+    ['NEW_VALUE_3_1', 'NEW_VALUE_3_2', 'NEW_VALUE_3_3', 'NEW_VALUE_3_4'],
+    ['NEW_VALUE_4_1', 'NEW_VALUE_4_2', 'NEW_VALUE_4_3', 'NEW_VALUE_4_4'],
+    ['NEW_VALUE_5_1', 'NEW_VALUE_5_2', 'NEW_VALUE_5_3', 'NEW_VALUE_5_4'],
+  ]
+  range.replaceData(newValues);
+
+  expect(range.range.getRow()).toEqual(4);
+  expect(range.range.getColumn()).toEqual(5);
+  expect(range.range.getNumRows()).toEqual(5);
+  expect(range.range.getNumColumns()).toEqual(4);
+
+  newValues = [
+    ['MORE_VALUE_1_1', 'MORE_VALUE_1_2', 'MORE_VALUE_1_3'],
+    ['MORE_VALUE_2_1', 'MORE_VALUE_2_2', 'MORE_VALUE_2_3'],
+    ['MORE_VALUE_3_1', 'MORE_VALUE_3_2', 'MORE_VALUE_3_3'],
+  ]
+
+  range.replaceData(newValues);
+
+  expect(range.range.getRow()).toEqual(4);
+  expect(range.range.getColumn()).toEqual(5);
+  expect(range.range.getNumRows()).toEqual(3);
+  expect(range.range.getNumColumns()).toEqual(3);
+
 })
