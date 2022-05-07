@@ -1,7 +1,7 @@
 const CoverSheets =  require('../dist/CoverSheets');
 
 test('Range constructor with no parameters should default to active sheet', () => {
-  let range = new CoverSheets.Range();
+  const range = new CoverSheets.Range();
   expect(range).not.toBeNull();
   expect(range.worksheet.sheet.getName()).toBe("ActiveSheet");
   expect(range.range).toMatchObject({
@@ -32,7 +32,7 @@ test('Range constructor with worksheet updates sheetName', () => {
 })
 
 test('Range with one row of headers', () => {
-  range = new CoverSheets.Range({
+  const range = new CoverSheets.Range({
     sheetName: "Some Sheet",
     row: 1, column: 1, numRows: 4, numColumns: 4, 
     headerType:"RowBased", headerSize: 1
@@ -44,7 +44,7 @@ test('Range with one row of headers', () => {
 })
 
 test('Range with one column of headers', () => {
-  range = new CoverSheets.Range({
+  const range = new CoverSheets.Range({
     sheetName: "Some Sheet",
     row: 1, column: 1, numRows: 4, numColumns: 4, 
     headerType:"ColumnBased", headerSize: 1
@@ -56,7 +56,7 @@ test('Range with one column of headers', () => {
 })
 
 test('Range with 3 rows of headers', () => {
-  range = new CoverSheets.Range({
+  const range = new CoverSheets.Range({
     sheetName: 'Some Sheet',
     row: 1, column: 1, numRows: 5, numColumns: 3,
     headerType: "RowBased", headerSize: 3
@@ -71,7 +71,7 @@ test('Range with 3 rows of headers', () => {
 })
 
 test('Range with 3 columns of headers', () => {
-  range = new CoverSheets.Range({
+  const range = new CoverSheets.Range({
     sheetName: 'Some Sheet',
     row: 1, column: 1, numRows: 4, numColumns: 6,
     headerType: "ColumnBased", headerSize: 3
@@ -87,17 +87,19 @@ test('Range with 3 columns of headers', () => {
 })
 
 test('Range with merged rows in header', () => {
-  range = new CoverSheets.Range({
+  const range = new CoverSheets.Range({
     sheetName: 'Some Sheet',
     row: 1, column: 1, numRows: 4, numColumns: 6,
     headerType: "RowBased", headerSize: 3
   })
+  
   range.range.mergeRows(1, 1, 2);
-  console.log(range.getHeaders());
+
+  // TODO: Missing assertions
 })
 
 test('replaceData', () => {
-  range = new CoverSheets.Range({
+  const range = new CoverSheets.Range({
     sheetName: 'Some Sheet',
     row: 4, column: 5, numRows: 3, numColumns: 2
   })
@@ -137,4 +139,40 @@ test('replaceData', () => {
   expect(range.range.getNumRows()).toEqual(3);
   expect(range.range.getNumColumns()).toEqual(3);
 
+})
+
+test('getDataAsObjects', () => {
+  const range = new CoverSheets.Range({
+    sheetName: "Some Sheet",
+    row: 1, column: 1, numRows: 4, numColumns: 4, 
+    headerType:"RowBased", headerSize: 1
+  })
+
+  const objects = range.getDataAsObjects();
+  expect(objects.length).toEqual(3);
+  expect(objects[0]).toMatchObject(
+    {
+      "VALUE_1_1":"VALUE_2_1",
+      "VALUE_1_2":"VALUE_2_2",
+      "VALUE_1_3":"VALUE_2_3",
+      "VALUE_1_4":"VALUE_2_4"
+    }
+  )
+  expect(objects[1]).toMatchObject(
+    {
+      "VALUE_1_1":"VALUE_3_1",
+      "VALUE_1_2":"VALUE_3_2",
+      "VALUE_1_3":"VALUE_3_3",
+      "VALUE_1_4":"VALUE_3_4"
+    }
+  )
+
+  expect(objects[2]).toMatchObject(
+    {
+      "VALUE_1_1":"VALUE_4_1",
+      "VALUE_1_2":"VALUE_4_2",
+      "VALUE_1_3":"VALUE_4_3",
+      "VALUE_1_4":"VALUE_4_4"
+    }
+  )
 })

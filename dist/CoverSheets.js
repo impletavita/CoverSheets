@@ -53,9 +53,20 @@ var CoverSheets;
          */
         getValuesByHeader(header) {
             let valuesByHeader = [];
+            let values = this.getValues();
             const headers = this.getHeaders();
             const headerIndex = headers.indexOf(header);
+            if (headerIndex > -1) {
+                valuesByHeader = values.map(v => v[headerIndex]);
+            }
+            return valuesByHeader;
+        }
+        getValues(includeHeader = false) {
             let values = this.range.getValues();
+            if (includeHeader) {
+                return values;
+            }
+            const headers = this.getHeaders();
             if (this.headerType == "RowBased") {
                 values = values.slice(this.headerSize);
             }
@@ -63,10 +74,7 @@ var CoverSheets;
                 values = CoverSheets.Utils.transpose(values);
                 values = values.slice(this.headerSize);
             }
-            if (headerIndex > -1) {
-                valuesByHeader = values.map(v => v[headerIndex]);
-            }
-            return valuesByHeader;
+            return values;
         }
         /**
          * Replace all the data in this range. Range will be resized as necessary.
@@ -78,6 +86,18 @@ var CoverSheets;
             oldRange.clearContent();
             this.range = newRange;
             newRange.setValues(data);
+        }
+        getDataAsObjects() {
+            let headers = this.getHeaders();
+            let values = this.getValues();
+            return values.map(v => this.getVectorAsObject(v, headers));
+        }
+        getVectorAsObject(vector, headers) {
+            const obj = {};
+            headers.forEach((h, i) => {
+                obj[h] = vector[i];
+            });
+            return obj;
         }
     }
     CoverSheets.Range = Range;

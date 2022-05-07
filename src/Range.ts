@@ -1,3 +1,4 @@
+
 namespace CoverSheets {
   export type HeaderType = "None" | "RowBased" | "ColumnBased";
 
@@ -82,13 +83,28 @@ namespace CoverSheets {
      * For the specified header, return all the values as an array
      * @param header the name of the header
      */
-    getValuesByHeader(header:string) :any[] {
-      let valuesByHeader:any[] = [];
+    getValuesByHeader(header:string) :undefined[] {
+      let valuesByHeader:undefined[] = [];
+
+      let values = this.getValues();
 
       const headers = this.getHeaders();
       const headerIndex = headers.indexOf(header);
 
-      let values = this.range.getValues();
+      if (headerIndex > -1) {
+        valuesByHeader = values.map(v => v[headerIndex]);
+      }
+
+      return valuesByHeader;
+    }
+
+    getValues(includeHeader = false) :undefined[][] {
+      let values = this.range.getValues() as undefined[][];
+      if (includeHeader) {
+        return values;
+      }
+
+      const headers = this.getHeaders();
       if (this.headerType == "RowBased") {
         values = values.slice(this.headerSize);
       } else if (this.headerType == "ColumnBased") {
@@ -96,11 +112,7 @@ namespace CoverSheets {
         values = values.slice(this.headerSize);
       }
     
-      if (headerIndex > -1) {
-        valuesByHeader = values.map(v => v[headerIndex]);
-      }
-
-      return valuesByHeader;
+      return values;
     }
 
     /**
@@ -116,6 +128,23 @@ namespace CoverSheets {
       oldRange.clearContent();
       this.range = newRange;
       newRange.setValues(data);
+    }
+
+    getDataAsObjects() {
+      let headers = this.getHeaders();
+
+      let values = this.getValues();
+
+      return values.map(v => this.getVectorAsObject(v, headers));
+    }
+
+    getVectorAsObject(vector, headers) {
+      const obj = {}
+      headers.forEach((h, i) => {
+        obj[h] = vector[i];
+      })
+
+      return obj;
     }
   }
 }
