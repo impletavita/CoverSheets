@@ -98,8 +98,9 @@ namespace CoverSheets {
       return valuesByHeader;
     }
 
-    getValues(includeHeader = false) :undefined[][] {
-      let values = this.range.getValues() as undefined[][];
+    getValues(includeHeader = false) {
+      let values = this.range.getValues();
+
       if (includeHeader) {
         return values;
       }
@@ -130,6 +131,33 @@ namespace CoverSheets {
       newRange.setValues(data);
     }
 
+    /**
+     * Add data to the range. 
+     * If the range is RowBased, new rows will be added. If it is 
+     * ColumnBased, new columns will be added.
+     * @param data data to append to range
+     */
+    addData(data:undefined[][]) {
+      let oldRange = this.range;
+
+      let newStartRow = oldRange.getRow() + oldRange.getNumRows();
+      let newStartColumn = oldRange.getColumn();
+      let rowsToAdd = data.length;
+      let columnsToAdd = 0;
+
+      if (this.headerType === "ColumnBased") {
+        [newStartRow, newStartColumn] = [newStartColumn, newStartRow];
+        [rowsToAdd, columnsToAdd] = [columnsToAdd, rowsToAdd];
+      }
+
+      const addedRange = oldRange.getSheet().getRange(newStartRow, newStartColumn,
+        rowsToAdd, columnsToAdd);
+      addedRange.setValues(data);
+
+      this.range = oldRange.getSheet().getRange(oldRange.getRow(), oldRange.getColumn(),
+        oldRange.getNumRows() + rowsToAdd, oldRange.getNumColumns() + columnsToAdd);
+    }
+
     getDataAsObjects() {
       let headers = this.getHeaders();
 
@@ -145,6 +173,10 @@ namespace CoverSheets {
       })
 
       return obj;
+    }
+
+    addObjects(objects) {
+      // convert the objects into a 2D array
     }
   }
 }

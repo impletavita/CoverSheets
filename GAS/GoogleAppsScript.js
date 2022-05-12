@@ -1,12 +1,22 @@
 const { Worksheet } = require("../dist/CoverSheets");
 
 class Range {
+  set values(data) {
+    this.updateSheetData(data);
+  }
+
+  get values() {
+
+    return this.sheet.getData(this.row, this.column, this.numRows, this.numColumns);
+  }
+
   constructor(row, column, numRows, numColumns, sheet) {
     this.row = row;
     this.column = column;
     this.numRows = numRows;
     this.numColumns = numColumns;
     this.sheet = sheet;
+
   }
 
   getSheet() {
@@ -22,7 +32,7 @@ class Range {
   }
   
   getValues() {
-    return this.values ?? (this.values = this.getData());
+    return this.values;
   }
 
   getNumRows() {
@@ -38,17 +48,25 @@ class Range {
   }
 
   clearContent() {
-    this.values = Array(this.numRows).map(r => new Array(this.numColumns).fill(''));
+    this.values = Array(this.numRows).fill('').map(r => new Array(this.numColumns).fill(''));
   }
 
-  getData() {
+  updateSheetData(data) {
+    this.sheet.setData(this.row, this.column, data);
+  }
+
+  fillDefaultData() {
     const data = []
     for(let r = 1; r <= this.numRows; r++) {
-      data.push(new Array(this.numColumns).fill().map((v, c) => `VALUE_${r}_${c+1}`));
+      data.push(new Array(this.numColumns).fill('').map((v, c) => `VALUE_${r}_${c+1}`));
     }
+
+    this.values = data;
+
     return data;
   }
 
+  // TODO
   mergeRows(column, startRow, endRow) {
 
     if (startRow == endRow) {
@@ -68,8 +86,9 @@ class Range {
 }
 
 class Sheet {
-  constructor(name) {
+  constructor(name, data) {
     this.name = name;
+    this.data = data ?? Array(100).fill('').map(r => new Array(100).fill(''));
   }
 
   getName() {
@@ -78,6 +97,25 @@ class Sheet {
 
   getRange(row, column, numRows, numColumns) {
     return new Range(row, column, numRows, numColumns, this);
+  }
+
+  setData(startRow, startColumn, data) {
+    const numRows = data.length;
+    const numColumns = data[0].length;
+    
+    for(let row = 0; row < numRows; row++) {
+      for(let col = 0; col < numColumns; col++) {
+        this.data[startRow + row][startColumn + col] = data[row][col];
+      }
+    }
+  }
+
+  getData(row, column, numRows, numColumns) {
+    const data = [];
+    for(let r = 0; r < numRows; r++) {
+      data[r] = this.data[row + r].slice(column, column + numColumns);
+    }
+    return data;
   }
 }
 
