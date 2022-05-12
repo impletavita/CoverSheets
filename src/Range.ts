@@ -140,27 +140,30 @@ namespace CoverSheets {
     addData(data:undefined[][]) {
       let oldRange = this.range;
 
+
       let newStartRow = oldRange.getRow() + oldRange.getNumRows();
       let newStartColumn = oldRange.getColumn();
       let rowsToAdd = data.length;
       let columnsToAdd = 0;
 
       if (this.headerType === "ColumnBased") {
-        [newStartRow, newStartColumn] = [newStartColumn, newStartRow];
-        [rowsToAdd, columnsToAdd] = [columnsToAdd, rowsToAdd];
+        newStartRow = oldRange.getRow();
+        newStartColumn += oldRange.getNumColumns();
+        rowsToAdd = 0;
+        columnsToAdd = data[0].length;
       }
 
       const addedRange = oldRange.getSheet().getRange(newStartRow, newStartColumn,
-        rowsToAdd, columnsToAdd);
+        data.length, data[0].length);
+
       addedRange.setValues(data);
 
       this.range = oldRange.getSheet().getRange(oldRange.getRow(), oldRange.getColumn(),
-        oldRange.getNumRows() + rowsToAdd, oldRange.getNumColumns() + columnsToAdd);
+        oldRange.getNumRows() + rowsToAdd, oldRange.getNumColumns() + columnsToAdd);      
     }
 
     getDataAsObjects() {
       let headers = this.getHeaders();
-
       let values = this.getValues();
 
       return values.map(v => this.getVectorAsObject(v, headers));
@@ -177,6 +180,11 @@ namespace CoverSheets {
 
     addObjects(objects) {
       // convert the objects into a 2D array
+    }
+
+    metadata(range = this.range) {
+      return `row: ${range.getRow()}, col: ${range.getColumn()},` +
+        `numRows: ${range.getNumRows()}, numColumns: ${range.getNumColumns()}`;
     }
   }
 }

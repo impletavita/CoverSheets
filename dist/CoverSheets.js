@@ -100,10 +100,12 @@ var CoverSheets;
             let rowsToAdd = data.length;
             let columnsToAdd = 0;
             if (this.headerType === "ColumnBased") {
-                [newStartRow, newStartColumn] = [newStartColumn, newStartRow];
-                [rowsToAdd, columnsToAdd] = [columnsToAdd, rowsToAdd];
+                newStartRow = oldRange.getRow();
+                newStartColumn += oldRange.getNumColumns();
+                rowsToAdd = 0;
+                columnsToAdd = data[0].length;
             }
-            const addedRange = oldRange.getSheet().getRange(newStartRow, newStartColumn, rowsToAdd, columnsToAdd);
+            const addedRange = oldRange.getSheet().getRange(newStartRow, newStartColumn, data.length, data[0].length);
             addedRange.setValues(data);
             this.range = oldRange.getSheet().getRange(oldRange.getRow(), oldRange.getColumn(), oldRange.getNumRows() + rowsToAdd, oldRange.getNumColumns() + columnsToAdd);
         }
@@ -121,6 +123,10 @@ var CoverSheets;
         }
         addObjects(objects) {
             // convert the objects into a 2D array
+        }
+        metadata(range = this.range) {
+            return `row: ${range.getRow()}, col: ${range.getColumn()},` +
+                `numRows: ${range.getNumRows()}, numColumns: ${range.getNumColumns()}`;
         }
     }
     CoverSheets.Range = Range;
