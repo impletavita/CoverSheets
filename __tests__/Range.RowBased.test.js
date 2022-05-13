@@ -173,10 +173,9 @@ test('Add data as objects', () => {
       "VALUE_1_4":"Addded_VALUE_5_4"
     },
   ]
-  /*
+
   range.addObjects(objectsToAdd);
 
   values = range.getValues();
   expect(values.length).toEqual(4);
-*/
 })

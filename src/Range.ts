@@ -1,4 +1,3 @@
-
 namespace CoverSheets {
   export type HeaderType = "None" | "RowBased" | "ColumnBased";
 
@@ -92,7 +91,11 @@ namespace CoverSheets {
       const headerIndex = headers.indexOf(header);
 
       if (headerIndex > -1) {
-        valuesByHeader = values.map(v => v[headerIndex]);
+        if (this.headerType == "ColumnBased") {
+          valuesByHeader = values[headerIndex];
+        } else {
+          valuesByHeader = values.map(v => v[headerIndex]);
+        }
       }
 
       return valuesByHeader;
@@ -111,6 +114,7 @@ namespace CoverSheets {
       } else if (this.headerType == "ColumnBased") {
         values = Utils.transpose(values);
         values = values.slice(this.headerSize);
+        values = Utils.transpose(values);
       }
     
       return values;
@@ -166,11 +170,16 @@ namespace CoverSheets {
       let headers = this.getHeaders();
       let values = this.getValues();
 
+      if (this.headerType == "ColumnBased") {
+        values = Utils.transpose(values);
+      }
+      
       return values.map(v => this.getVectorAsObject(v, headers));
     }
 
     getVectorAsObject(vector, headers) {
       const obj = {}
+
       headers.forEach((h, i) => {
         obj[h] = vector[i];
       })
@@ -179,7 +188,19 @@ namespace CoverSheets {
     }
 
     addObjects(objects) {
-      // convert the objects into a 2D array
+      const headers = this.getHeaders();
+      let newData:undefined[][] = [];
+
+      headers.forEach(h => {
+        const values = objects.map(o => o[h] ?? '')
+        newData.push(values)
+      });
+
+      if (this.headerType == "RowBased") {
+        newData = Utils.transpose(newData);
+      }
+
+      this.addData(newData);
     }
 
     metadata(range = this.range) {

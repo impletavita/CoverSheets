@@ -57,7 +57,12 @@ var CoverSheets;
             const headers = this.getHeaders();
             const headerIndex = headers.indexOf(header);
             if (headerIndex > -1) {
-                valuesByHeader = values.map(v => v[headerIndex]);
+                if (this.headerType == "ColumnBased") {
+                    valuesByHeader = values[headerIndex];
+                }
+                else {
+                    valuesByHeader = values.map(v => v[headerIndex]);
+                }
             }
             return valuesByHeader;
         }
@@ -73,6 +78,7 @@ var CoverSheets;
             else if (this.headerType == "ColumnBased") {
                 values = CoverSheets.Utils.transpose(values);
                 values = values.slice(this.headerSize);
+                values = CoverSheets.Utils.transpose(values);
             }
             return values;
         }
@@ -112,6 +118,9 @@ var CoverSheets;
         getDataAsObjects() {
             let headers = this.getHeaders();
             let values = this.getValues();
+            if (this.headerType == "ColumnBased") {
+                values = CoverSheets.Utils.transpose(values);
+            }
             return values.map(v => this.getVectorAsObject(v, headers));
         }
         getVectorAsObject(vector, headers) {
@@ -122,7 +131,16 @@ var CoverSheets;
             return obj;
         }
         addObjects(objects) {
-            // convert the objects into a 2D array
+            const headers = this.getHeaders();
+            let newData = [];
+            headers.forEach(h => {
+                const values = objects.map(o => { var _a; return (_a = o[h]) !== null && _a !== void 0 ? _a : ''; });
+                newData.push(values);
+            });
+            if (this.headerType == "RowBased") {
+                newData = CoverSheets.Utils.transpose(newData);
+            }
+            this.addData(newData);
         }
         metadata(range = this.range) {
             return `row: ${range.getRow()}, col: ${range.getColumn()},` +

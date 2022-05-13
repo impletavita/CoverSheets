@@ -46,31 +46,29 @@ test('getDataAsObjects ColumnBased', () => {
   
   expect(objects[0]).toMatchObject(
     {
-      "VALUE_1_1":"VALUE_2_1",
-      "VALUE_1_2":"VALUE_2_2",
-      "VALUE_1_3":"VALUE_2_3",
-      "VALUE_1_4":"VALUE_2_4"
+      "VALUE_1_1":"VALUE_1_2",
+      "VALUE_2_1":"VALUE_2_2",
+      "VALUE_3_1":"VALUE_3_2",
+      "VALUE_4_1":"VALUE_4_2"
     }
   )
   expect(objects[1]).toMatchObject(
     {
-      "VALUE_1_1":"VALUE_3_1",
-      "VALUE_1_2":"VALUE_3_2",
-      "VALUE_1_3":"VALUE_3_3",
-      "VALUE_1_4":"VALUE_3_4"
+      "VALUE_1_1":"VALUE_1_3",
+      "VALUE_2_1":"VALUE_2_3",
+      "VALUE_3_1":"VALUE_3_3",
+      "VALUE_4_1":"VALUE_4_3"
     }
   )
 
   expect(objects[2]).toMatchObject(
     {
-      "VALUE_1_1":"VALUE_4_1",
-      "VALUE_1_2":"VALUE_4_2",
-      "VALUE_1_3":"VALUE_4_3",
-      "VALUE_1_4":"VALUE_4_4"
+      "VALUE_1_1":"VALUE_1_4",
+      "VALUE_2_1":"VALUE_2_4",
+      "VALUE_3_1":"VALUE_3_4",
+      "VALUE_4_1":"VALUE_4_4"
     }
   )
-
-  // TODO: Test columnbased header range as well
 })
 
 test('replaceData ColumnBased', () => {
@@ -142,4 +140,97 @@ test('Add data - ColumnBased', () => {
 
   const expectedData = values.map((v,i) => v.concat(dataToAdd[i]));
   expect(rangeValues).toEqual(expectedData);
+})
+
+test('Add data as objects - ColumnBased', () => {
+  let range = new CoverSheets.Range({
+    sheetName: "Some Sheet",
+    row: 1, column: 1, numRows: 2, numColumns: 4, 
+    headerType:"ColumnBased", headerSize: 1
+  })
+
+  range.range.fillDefaultData();
+
+  let values = range.getValues();
+  expect(values.length).toEqual(2);
+
+  const objectsToAdd = [
+    {
+      "VALUE_1_1":"Addded_VALUE_1_5",
+      "VALUE_2_1":"Addded_VALUE_2_5",
+    },
+    {
+      "VALUE_1_1":"Addded_VALUE_1_6",
+      "VALUE_2_1":"Addded_VALUE_2_6",
+    },
+    {
+      "VALUE_1_1":"Addded_VALUE_1_7",
+      "VALUE_2_1":"Addded_VALUE_2_7",
+    },
+  ]
+
+  range.addObjects(objectsToAdd);
+  
+  values = range.getValues();
+  expect(values.length).toEqual(2);
+  
+  expect(values).toEqual([
+    [
+      'VALUE_1_2',
+      'VALUE_1_3',
+      'VALUE_1_4',
+      'Addded_VALUE_1_5',
+      'Addded_VALUE_1_6',
+      'Addded_VALUE_1_7'
+    ],
+    [
+      'VALUE_2_2',
+      'VALUE_2_3',
+      'VALUE_2_4',
+      'Addded_VALUE_2_5',
+      'Addded_VALUE_2_6',
+      'Addded_VALUE_2_7'
+    ]
+  ]);
+
+  const objectsAfterAdd = range.getDataAsObjects();
+  expect(objectsAfterAdd.length).toEqual(6);
+  console.log(JSON.stringify(objectsAfterAdd[0]));
+
+  expect(objectsAfterAdd[0]).toMatchObject(
+    {
+      "VALUE_1_1":"VALUE_1_2",
+      "VALUE_2_1":"VALUE_2_2", 
+    }
+  )
+  expect(objectsAfterAdd[1]).toMatchObject(
+    {
+      "VALUE_1_1":"VALUE_1_3",
+      "VALUE_2_1":"VALUE_2_3", 
+    }
+  )
+  expect(objectsAfterAdd[2]).toMatchObject(
+    {
+      "VALUE_1_1":"VALUE_1_4",
+      "VALUE_2_1":"VALUE_2_4", 
+    }
+  )
+  expect(objectsAfterAdd[3]).toMatchObject(
+    {
+      "VALUE_1_1":"Addded_VALUE_1_5",
+      "VALUE_2_1":"Addded_VALUE_2_5", 
+    }
+  )
+  expect(objectsAfterAdd[4]).toMatchObject(
+    {
+      "VALUE_1_1":"Addded_VALUE_1_6",
+      "VALUE_2_1":"Addded_VALUE_2_6", 
+    }
+  )
+  expect(objectsAfterAdd[5]).toMatchObject(
+    {
+      "VALUE_1_1":"Addded_VALUE_1_7",
+      "VALUE_2_1":"Addded_VALUE_2_7", 
+    }
+  )
 })
