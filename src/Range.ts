@@ -2,6 +2,7 @@ namespace CoverSheets {
   export type HeaderType = "None" | "RowBased" | "ColumnBased";
 
   export type RangeOptions = {
+    range?: GoogleAppsScript.Spreadsheet.Range;
     worksheet: Worksheet;
     sheetName: string;
     row: number;
@@ -26,14 +27,19 @@ namespace CoverSheets {
       this.headerSize = paramsWithDefaults.headerSize;
       this.worksheet = paramsWithDefaults.worksheet;
 
-      this.range = paramsWithDefaults.worksheet.getRange(paramsWithDefaults.row, 
-        paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
+      if (paramsWithDefaults.range) {
+        this.range = paramsWithDefaults.range;
+      } else {
+        this.range = paramsWithDefaults.worksheet.getRange(paramsWithDefaults.row, 
+          paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
+      }
     }
 
     initParams(params?: Partial<RangeOptions> ): RangeOptions {
       const worksheet = Spreadsheet.getActiveWorksheet();
 
       const defaults: RangeOptions = {
+        range: undefined,
         worksheet: worksheet,
         sheetName: worksheet.sheet.getName(),
         row: 1,
@@ -44,10 +50,12 @@ namespace CoverSheets {
         headerSize: 1
       }
 
-      if (params?.worksheet) {
+      if (params?.range) {
+        params.worksheet = new Worksheet(params.range.getSheet());
+      } else if (params?.worksheet) {
         params.sheetName = params.worksheet.sheet.getName();
       } else if (params?.sheetName) {
-        params.worksheet = new Spreadsheet().getSheetByName(params.sheetName) as Worksheet;
+        params.worksheet = new Spreadsheet().getSheetByName(params.sheetName);
       }
 
       const retVal = {

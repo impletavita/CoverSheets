@@ -195,7 +195,6 @@ test('Add data as objects - ColumnBased', () => {
 
   const objectsAfterAdd = range.getDataAsObjects();
   expect(objectsAfterAdd.length).toEqual(6);
-  console.log(JSON.stringify(objectsAfterAdd[0]));
 
   expect(objectsAfterAdd[0]).toMatchObject(
     {

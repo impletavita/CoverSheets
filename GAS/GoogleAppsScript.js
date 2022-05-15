@@ -16,7 +16,6 @@ class Range {
     this.numRows = numRows;
     this.numColumns = numColumns;
     this.sheet = sheet;
-
   }
 
   getSheet() {
@@ -119,14 +118,49 @@ class Sheet {
   }
 }
 
+const namedRangeMap = {
+  "FirstNamedRange" : {
+    row: 1,
+    col: 1,
+    numRows: 4,
+    numColumns: 4
+  },
+
+  "SecondNamedRange" : {
+    row: 10,
+    col: 10,
+    numRows: 3,
+    numColumns: 5
+  },
+
+  "ThirdNamedRange" : {
+    row: 15,
+    col: 20,
+    numRows: 5,
+    numColumns: 5
+  }
+}
 global.SpreadsheetApp = {
+
   getActiveSheet: () => {
     return new Sheet('ActiveSheet');
   },
+
   getActiveSpreadsheet: () => ({
     getSheetByName: (name) => {
       return new Sheet(name)
     },
+    getRangeByName: (name) => {
+      const range = namedRangeMap[name];
+
+      if (!range) {
+        console.error(`Range named ${name} not found.`);
+        console.log(`Available names are ${Object.keys(namedRangeMap).join()}`);
+        return null;
+      }
+
+      return new Range(range.row, range.col, range.numRows, range.numColumns,SpreadsheetApp.getActiveSheet());
+    }
   }),
 };
 

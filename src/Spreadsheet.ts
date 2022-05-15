@@ -19,15 +19,15 @@ namespace CoverSheets {
      * Retrieves a Worksheet of the specified name in this spreadheet.
      * @param sheetName The name of the worksheet
      * @returns Worksheet representing the worksheet of the specified name. If no 
-     * such worksheet is found, returns null
+     * such worksheet is found, returns undefined
      */
-    getSheetByName(sheetName: string): Worksheet | null {
+    getSheetByName(sheetName: string): Worksheet | undefined {
       const sheet = this.spreadsheet.getSheetByName(sheetName);
 
       if (!sheet) {
         // TODO
         // CSUtils.showWarning(`Worksheet named "${sheetName}" does not exist. Returning active sheet.`)
-        return null;
+        return undefined;
       }
 
       return new Worksheet(sheet);

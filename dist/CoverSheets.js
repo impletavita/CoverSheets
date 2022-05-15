@@ -7,11 +7,17 @@ var CoverSheets;
             this.headerType = paramsWithDefaults.headerType;
             this.headerSize = paramsWithDefaults.headerSize;
             this.worksheet = paramsWithDefaults.worksheet;
-            this.range = paramsWithDefaults.worksheet.getRange(paramsWithDefaults.row, paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
+            if (paramsWithDefaults.range) {
+                this.range = paramsWithDefaults.range;
+            }
+            else {
+                this.range = paramsWithDefaults.worksheet.getRange(paramsWithDefaults.row, paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
+            }
         }
         initParams(params) {
             const worksheet = CoverSheets.Spreadsheet.getActiveWorksheet();
             const defaults = {
+                range: undefined,
                 worksheet: worksheet,
                 sheetName: worksheet.sheet.getName(),
                 row: 1,
@@ -21,7 +27,10 @@ var CoverSheets;
                 headerType: "None",
                 headerSize: 1
             };
-            if (params === null || params === void 0 ? void 0 : params.worksheet) {
+            if (params === null || params === void 0 ? void 0 : params.range) {
+                params.worksheet = new CoverSheets.Worksheet(params.range.getSheet());
+            }
+            else if (params === null || params === void 0 ? void 0 : params.worksheet) {
                 params.sheetName = params.worksheet.sheet.getName();
             }
             else if (params === null || params === void 0 ? void 0 : params.sheetName) {
@@ -149,6 +158,19 @@ var CoverSheets;
     }
     CoverSheets.Range = Range;
 })(CoverSheets || (CoverSheets = {}));
+/// <reference path="./Range.ts" />
+var CoverSheets;
+(function (CoverSheets) {
+    class NamedRange extends CoverSheets.Range {
+        constructor(rangeName, headerType = "None", headerSize = 1) {
+            var _a;
+            const range = (_a = SpreadsheetApp.getActiveSpreadsheet().getRangeByName(rangeName)) !== null && _a !== void 0 ? _a : undefined;
+            super({ range: range, headerType: headerType, headerSize: headerSize });
+            this.rangeName = rangeName;
+        }
+    }
+    CoverSheets.NamedRange = NamedRange;
+})(CoverSheets || (CoverSheets = {}));
 var CoverSheets;
 (function (CoverSheets) {
     class Spreadsheet {
@@ -165,14 +187,14 @@ var CoverSheets;
          * Retrieves a Worksheet of the specified name in this spreadheet.
          * @param sheetName The name of the worksheet
          * @returns Worksheet representing the worksheet of the specified name. If no
-         * such worksheet is found, returns null
+         * such worksheet is found, returns undefined
          */
         getSheetByName(sheetName) {
             const sheet = this.spreadsheet.getSheetByName(sheetName);
             if (!sheet) {
                 // TODO
                 // CSUtils.showWarning(`Worksheet named "${sheetName}" does not exist. Returning active sheet.`)
-                return null;
+                return undefined;
             }
             return new CoverSheets.Worksheet(sheet);
         }
@@ -296,11 +318,13 @@ var CoverSheets;
     CoverSheets.Worksheet = Worksheet;
 })(CoverSheets || (CoverSheets = {}));
 var Range = CoverSheets.Range;
+var NamedRange = CoverSheets.NamedRange;
 var Spreadsheet = CoverSheets.Spreadsheet;
 var Utils = CoverSheets.Utils;
 var Worksheet = CoverSheets.Worksheet;
 var exports = exports || {};
 exports.Range = CoverSheets.Range;
+exports.NamedRange = CoverSheets.NamedRange;
 exports.Spreadsheet = CoverSheets.Spreadsheet;
 exports.Utils = CoverSheets.Utils;
 exports.Worksheet = CoverSheets.Worksheet;

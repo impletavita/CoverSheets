@@ -7,7 +7,7 @@ fs.copyFileSync(src, dest);
 
 const fd = fs.openSync(dest, 'a+', 0o666,);
 const content = fs.readFileSync(fd, 'utf8');
-const classes = content.matchAll(/class ([^\s]*)\s{/g)
+const classes = content.matchAll(/class ([^\s]*)\s(?:\s*extends[^{]*)?{/g)
 const classNames = [...classes].map(c => c[1]);  
 
 const declarations = classNames.map(c => `var ${c} = CoverSheets.${c}`);
