@@ -11,7 +11,7 @@ var CoverSheets;
                 this.range = paramsWithDefaults.range;
             }
             else {
-                this.range = paramsWithDefaults.worksheet.getRange(paramsWithDefaults.row, paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
+                this.range = paramsWithDefaults.worksheet.sheet.getRange(paramsWithDefaults.row, paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
             }
         }
         initParams(params) {
@@ -312,7 +312,21 @@ var CoverSheets;
             this.sheet = sheet;
         }
         getRange(row, column, numRows, numColumns) {
-            return this.sheet.getRange(row, column, numRows, numColumns);
+            const range = this.sheet.getRange(row, column, numRows, numColumns);
+            return new CoverSheets.Range({ range: range });
+        }
+        getRangeByName(rangeName, headerType = "None", headerSize = 1) {
+            const rangeNameMatch = rangeName.match(/(?:["']?([^!'"]*)["']?!)?(.*)$/);
+            let worksheetName = this.sheet.getName();
+            if (rangeNameMatch) {
+                if (rangeNameMatch[1]) {
+                    worksheetName = rangeNameMatch[1];
+                    // TODO: should we throw an exception if specified worksheet name 
+                    // TODO: does not match this worksheet's name?
+                }
+                rangeName = `'${worksheetName}'!${rangeNameMatch[2]}`;
+            }
+            return new CoverSheets.NamedRange(rangeName, headerType, headerSize);
         }
     }
     CoverSheets.Worksheet = Worksheet;

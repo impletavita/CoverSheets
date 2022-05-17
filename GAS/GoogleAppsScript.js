@@ -90,6 +90,10 @@ class Sheet {
     this.data = data ?? Array(100).fill('').map(r => new Array(100).fill(''));
   }
 
+  setName(name) {
+    this.name = name;
+  }
+
   getName() {
     return this.name;
   }
@@ -116,6 +120,14 @@ class Sheet {
     }
     return data;
   }
+
+  copyTo(destinationSpreadsheet) {
+    return destinationSpreadsheet.insertSheet(`Copy of ${this.name}`);
+  }
+
+  activate() {
+    activeSpreadsheet.setActiveWorksheet(this);
+  }
 }
 
 const namedRangeMap = {
@@ -126,7 +138,7 @@ const namedRangeMap = {
     numColumns: 4
   },
 
-  "SecondNamedRange" : {
+  "'Work Sheet With Spaces'!SecondNamedRange" : {
     row: 10,
     col: 10,
     numRows: 3,
@@ -140,18 +152,24 @@ const namedRangeMap = {
     numColumns: 5
   }
 }
-global.SpreadsheetApp = {
 
-  getActiveSheet: () => {
-    return new Sheet('ActiveSheet');
-  },
+class Spreadsheet {
+  sheets = [
+    'Worksheet1', 
+    'Some Sheet', 
+    'Work Sheet With Spaces'
+  ].map(s => new Sheet(s));
 
-  getActiveSpreadsheet: () => ({
-    getSheetByName: (name) => {
-      return new Sheet(name)
-    },
-    getRangeByName: (name) => {
-      const range = namedRangeMap[name];
+  getSheets() {
+    return this.sheets;
+  }
+
+  getSheetByName(name) {
+    return this.sheets.find(s => s.getName() === name);
+  }
+
+  getRangeByName(name) {
+    const range = namedRangeMap[name];
 
       if (!range) {
         console.error(`Range named ${name} not found.`);
@@ -160,8 +178,26 @@ global.SpreadsheetApp = {
       }
 
       return new Range(range.row, range.col, range.numRows, range.numColumns,SpreadsheetApp.getActiveSheet());
-    }
-  }),
-};
+  }
 
-global.Worksheet1 = new Worksheet("Worksheet1");
+  insertSheet(sheetName) {
+    const newSheet = new Sheet(sheetName);
+    this.sheets.push(newSheet);
+    return newSheet;
+  }
+
+  setActiveWorksheet(worksheet) {
+    this.activeWorksheet = worksheet;
+  }
+}
+
+const activeSpreadsheet = new Spreadsheet();
+
+global.SpreadsheetApp = {
+
+  getActiveSheet: () => {
+    return new Sheet('ActiveSheet');
+  },
+
+  getActiveSpreadsheet: () => activeSpreadsheet,
+};

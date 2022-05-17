@@ -30,7 +30,7 @@ namespace CoverSheets {
       if (paramsWithDefaults.range) {
         this.range = paramsWithDefaults.range;
       } else {
-        this.range = paramsWithDefaults.worksheet.getRange(paramsWithDefaults.row, 
+        this.range = paramsWithDefaults.worksheet.sheet.getRange(paramsWithDefaults.row, 
           paramsWithDefaults.column, paramsWithDefaults.numRows, paramsWithDefaults.numColumns);
       }
     }

@@ -1,4 +1,5 @@
 const CoverSheets =  require('../dist/CoverSheets');
+const { Worksheet } = require("../dist/CoverSheets");
 
 test('Range constructor with no parameters should default to active sheet', () => {
   const range = new CoverSheets.Range();
@@ -18,14 +19,15 @@ test('Range constructor with no parameters should default to active sheet', () =
 
 test('Range constructor with worksheet updates sheetName', () => {
 
+  const worksheet1 = new Worksheet("Worksheet1")
   let range = new CoverSheets.Range({
-    worksheet: Worksheet1,
+    worksheet: worksheet1,
   });
   expect(range.worksheet.sheet.getName()).toEqual("Worksheet1");
 
   // test that worksheet takes precedence over sheetName
   range = new CoverSheets.Range({
-    worksheet: Worksheet1,
+    worksheet: worksheet1,
     sheetName: "SomethingElse"
   });
   expect(range.range.sheet.getName()).toEqual("Worksheet1");
@@ -33,7 +35,7 @@ test('Range constructor with worksheet updates sheetName', () => {
 
 test('Range with one row of headers', () => {
   const range = new CoverSheets.Range({
-    sheetName: "Some Sheet 1",
+    sheetName: "Some Sheet",
     row: 1, column: 1, numRows: 4, numColumns: 4, 
     headerType:"RowBased", headerSize: 1
   });
