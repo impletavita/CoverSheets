@@ -68,7 +68,7 @@ namespace CoverSheets {
 
     getHeaders() : string[] {
       const values = this.range.getValues();
-   
+
       const coaleseHeaders = (headers:string[][]):string[] =>  {
         headers.forEach(d => d.slice(1).forEach((dd,i) => d[i+1] = (dd === '' ? d[i] : dd)));
         return headers.reduce((r, a) => a.map((b, i) => (r[i] ?? '')+ b), []);
@@ -116,31 +116,55 @@ namespace CoverSheets {
         return values;
       }
 
-      const headers = this.getHeaders();
+      return this.getValuesRange().getValues();
+    }
+
+    getValuesRange(): GoogleAppsScript.Spreadsheet.Range {
+      let row = this.range.getRow();
+      let column = this.range.getColumn();
+      let numRows = this.range.getNumRows();
+      let numColumns = this.range.getNumColumns();
+ 
       if (this.headerType == "RowBased") {
-        values = values.slice(this.headerSize);
+        row += this.headerSize;
+        numRows -= this.headerSize;
       } else if (this.headerType == "ColumnBased") {
-        values = Utils.transpose(values);
-        values = values.slice(this.headerSize);
-        values = Utils.transpose(values);
+        column += this.headerSize;
+        numColumns -= this.headerSize;
       }
-    
-      return values;
+
+      return this.range.getSheet().getRange(row, column, numRows, numColumns);
     }
 
     /**
-     * Replace all the data in this range. Range will be resized as necessary.
+     * Replace the data in this range. Range will be resized as necessary.
      * @param data new data to replace with
+     * @param preserveHeaders if true, replace values only
      */
-    replaceData(data:any[]) {
+    replaceData(data:any[], preserveHeaders=false): GoogleAppsScript.Spreadsheet.Range {
       let oldRange = this.range;
+      let replaceRange = preserveHeaders ? this.getValuesRange() : oldRange;
+      let sheet = this.range.getSheet();
+      let newRange = sheet.getRange(replaceRange.getRow(), 
+        replaceRange.getColumn(), data.length, data[0].length);
 
-      let newRange = this.range.getSheet().getRange(this.range.getRow(), this.range.getColumn(),
-        data.length, data[0].length);
-      
-      oldRange.clearContent();
-      this.range = newRange;
+      replaceRange.clearContent();
       newRange.setValues(data);
+
+      if (preserveHeaders) {
+        let numRows = newRange.getNumRows();
+        let numColumns = newRange.getNumColumns();
+        if (this.headerType === "RowBased") {
+          numRows += this.headerSize;
+        } else if (this.headerType === "ColumnBased") {
+          numColumns += this.headerSize;
+        }
+        newRange = sheet.getRange(oldRange.getRow(), oldRange.getColumn(),
+          numRows, numColumns);
+      }
+
+      this.range = newRange;
+      return newRange;
     }
 
     /**

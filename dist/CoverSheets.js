@@ -80,27 +80,48 @@ var CoverSheets;
             if (includeHeader) {
                 return values;
             }
-            const headers = this.getHeaders();
+            return this.getValuesRange().getValues();
+        }
+        getValuesRange() {
+            let row = this.range.getRow();
+            let column = this.range.getColumn();
+            let numRows = this.range.getNumRows();
+            let numColumns = this.range.getNumColumns();
             if (this.headerType == "RowBased") {
-                values = values.slice(this.headerSize);
+                row += this.headerSize;
+                numRows -= this.headerSize;
             }
             else if (this.headerType == "ColumnBased") {
-                values = CoverSheets.Utils.transpose(values);
-                values = values.slice(this.headerSize);
-                values = CoverSheets.Utils.transpose(values);
+                column += this.headerSize;
+                numColumns -= this.headerSize;
             }
-            return values;
+            return this.range.getSheet().getRange(row, column, numRows, numColumns);
         }
         /**
-         * Replace all the data in this range. Range will be resized as necessary.
+         * Replace the data in this range. Range will be resized as necessary.
          * @param data new data to replace with
+         * @param preserveHeaders if true, replace values only
          */
-        replaceData(data) {
+        replaceData(data, preserveHeaders = false) {
             let oldRange = this.range;
-            let newRange = this.range.getSheet().getRange(this.range.getRow(), this.range.getColumn(), data.length, data[0].length);
-            oldRange.clearContent();
-            this.range = newRange;
+            let replaceRange = preserveHeaders ? this.getValuesRange() : oldRange;
+            let sheet = this.range.getSheet();
+            let newRange = sheet.getRange(replaceRange.getRow(), replaceRange.getColumn(), data.length, data[0].length);
+            replaceRange.clearContent();
             newRange.setValues(data);
+            if (preserveHeaders) {
+                let numRows = newRange.getNumRows();
+                let numColumns = newRange.getNumColumns();
+                if (this.headerType === "RowBased") {
+                    numRows += this.headerSize;
+                }
+                else if (this.headerType === "ColumnBased") {
+                    numColumns += this.headerSize;
+                }
+                newRange = sheet.getRange(oldRange.getRow(), oldRange.getColumn(), numRows, numColumns);
+            }
+            this.range = newRange;
+            return newRange;
         }
         /**
          * Add data to the range.
@@ -163,10 +184,35 @@ var CoverSheets;
 (function (CoverSheets) {
     class NamedRange extends CoverSheets.Range {
         constructor(rangeName, headerType = "None", headerSize = 1) {
-            var _a;
-            const range = (_a = SpreadsheetApp.getActiveSpreadsheet().getRangeByName(rangeName)) !== null && _a !== void 0 ? _a : undefined;
-            super({ range: range, headerType: headerType, headerSize: headerSize });
+            const namedRange = NamedRange.getNamedRange(rangeName);
+            super({ range: namedRange === null || namedRange === void 0 ? void 0 : namedRange.getRange(), headerType: headerType, headerSize: headerSize });
             this.rangeName = rangeName;
+            this.namedRange = namedRange;
+        }
+        static getNamedRange(rangeName) {
+            const namedRanges = SpreadsheetApp.getActiveSpreadsheet().getNamedRanges();
+            // see if there's at least one range that matches the specified rangeName
+            let namedRange = namedRanges.find(nr => nr.getName() === rangeName);
+            if (namedRange) {
+                return namedRange;
+            }
+            // Handle scenario where named range does not follow <worksheetname>!<rangename> format.
+            const rangeNameParts = rangeName.split('!');
+            if (rangeNameParts.length == 2) {
+                const worksheetName = rangeNameParts[0].replace(/["']/, '');
+                namedRange = namedRanges.find(nr => nr.getName() === rangeNameParts[1]);
+                if (namedRange && namedRange.getRange().getSheet().getName() === worksheetName) {
+                    return namedRange;
+                }
+                else {
+                    namedRange = undefined;
+                }
+            }
+            return namedRange;
+        }
+        replaceData(data) {
+            this.range = super.replaceData(data);
+            return this.range;
         }
     }
     CoverSheets.NamedRange = NamedRange;

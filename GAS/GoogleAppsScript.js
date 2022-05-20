@@ -6,8 +6,7 @@ class Range {
   }
 
   get values() {
-
-    return this.sheet.getData(this.row, this.column, this.numRows, this.numColumns);
+    return this.getSheet().getData(this.row, this.column, this.numRows, this.numColumns);
   }
 
   constructor(row, column, numRows, numColumns, sheet) {
@@ -19,6 +18,10 @@ class Range {
   }
 
   getSheet() {
+    if (!this.sheet) {
+      this.sheet = SpreadsheetApp.getActiveSheet();
+    }
+    
     return this.sheet;
   }
 
@@ -51,7 +54,7 @@ class Range {
   }
 
   updateSheetData(data) {
-    this.sheet.setData(this.row, this.column, data);
+    this.getSheet().setData(this.row, this.column, data);
   }
 
   fillDefaultData() {
@@ -153,7 +156,34 @@ const namedRangeMap = {
   }
 }
 
+class NamedRange {
+  getRange() {
+    return this.range;
+  }
+
+  getName() {
+    return this.name;
+  }
+  
+  setRange(range) {
+    this.range = range;
+  }
+
+  constructor(name, range) {
+    this.range = range;
+    this.name = name;
+  }
+}
+
 class Spreadsheet {
+  constructor() {
+    this.namedRanges = [
+      "FirstNamedRange",
+      "'Work Sheet With Spaces'!SecondNamedRange"
+    ].map(n => new NamedRange(n, this.getRangeByName(n)));
+  
+  }
+
   sheets = [
     'Worksheet1', 
     'Some Sheet', 
@@ -177,7 +207,7 @@ class Spreadsheet {
         return null;
       }
 
-      return new Range(range.row, range.col, range.numRows, range.numColumns,SpreadsheetApp.getActiveSheet());
+      return new Range(range.row, range.col, range.numRows, range.numColumns);
   }
 
   insertSheet(sheetName) {
@@ -188,6 +218,10 @@ class Spreadsheet {
 
   setActiveWorksheet(worksheet) {
     this.activeWorksheet = worksheet;
+  }
+
+  getNamedRanges() {
+    return this.namedRanges;
   }
 }
 
