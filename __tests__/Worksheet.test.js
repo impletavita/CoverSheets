@@ -8,4 +8,8 @@ test('getRangeByName', () => {
   const namedRange = worksheet.getRangeByName(rangeName);
 
   expect(namedRange.rangeName).toBe(`'${worksheetName}'!${rangeName}`);
-});
+})
+
+test('replaceData', () => {
+  // TODO
+})

@@ -20,4 +20,4 @@ fs.appendFileSync(fd, `${exportDeclarations.join(';\r\n')};\r\n`);
 
 fs.close(fd);
 
-// fs.copyFileSync(dest, path.join(__dirname, "../tests/CoverSheets.js"));
+fs.copyFileSync(dest, path.join(__dirname, "../container-tests/CoverSheets.js"));

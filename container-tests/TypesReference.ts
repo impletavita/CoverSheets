@@ -1,0 +1,1 @@
+/// <reference path="../lib/CoverSheets.d.ts" />
