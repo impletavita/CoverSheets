@@ -43,9 +43,9 @@ namespace CoverSheets {
       return namedRange;
     }
 
-    replaceData(data:any[]): GoogleAppsScript.Spreadsheet.Range {
-      this.range = super.replaceData(data);
-
+    replaceData(data:any[], preserveHeaders=false): GoogleAppsScript.Spreadsheet.Range {
+      this.range = super.replaceData(data, preserveHeaders);
+      this.namedRange?.setRange(this.range);
       return this.range;
     }
   }

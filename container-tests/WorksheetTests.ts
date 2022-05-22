@@ -1,3 +1,51 @@
+/// <reference path="../dist/CoverSheets.d.ts" />
+
+
+function buildSprintsAndQuarters() {
+  const today = new Date();
+  
+} 
+
+function testRangeWithOneHeaderColumn() {
+  const range = new CoverSheets.NamedRange("MySheet!RangeWithOneHeaderColumn", 
+  "ColumnBased");
+  const values = range.getValues(false);
+
+  if (values?.length > 2) {
+    values[2][2] += " Updated ";
+    range.replaceData(values, true);
+  } else {
+    values.push([],[],[],[])
+  }
+  
+  values[0].push("H1 Value 4", "H1 Value 5", "H1 Value 6");
+  values[1].push("H2 Value 4", "H2 Value 5", "H2 Value 6");
+  values[2].push("H3 Value 4", "H3 Value 5", "H3 Value 6");
+  values[3].push("H4 Value 4", "H4 Value 5", "H4 Value 6");
+  
+  range.replaceData(values, true);
+}
+
+function testNamedRangeOneHeaderRow() {
+  const range = new CoverSheets.NamedRange("MySheet!RangeWithOneHeaderRow", "RowBased");
+  
+  const values = range.getValues(false);
+
+  if (values?.length > 2) {
+    values[2][3] += " Updated ";
+
+    range.replaceData(values, true);
+  }
+
+  values.push(
+    ["H1 Value 4", "H2 Value 4", "H3 Value 4", "H4 Value 4"],
+    ["H1 Value 5", "H2 Value 5", "H3 Value 5", "H4 Value 5"],
+    ["H1 Value 6", "H2 Value 6", "H3 Value 6", "H4 Value 6"],
+    )
+    range.replaceData(values, true);
+
+}
+
 function rangeHeaders() {
     
   let range = new CoverSheets.Range({ 
@@ -8,7 +56,7 @@ function rangeHeaders() {
     headerType: "RowBased",
     headerSize: 4
   });
-  
+
   logData(range);
   
   range = new CoverSheets.Range({ 

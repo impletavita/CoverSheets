@@ -63,6 +63,9 @@ var CoverSheets;
         getValuesByHeader(header) {
             let valuesByHeader = [];
             let values = this.getValues();
+            if (values.length == 0) {
+                return [];
+            }
             const headers = this.getHeaders();
             const headerIndex = headers.indexOf(header);
             if (headerIndex > -1) {
@@ -76,11 +79,12 @@ var CoverSheets;
             return valuesByHeader;
         }
         getValues(includeHeader = false) {
+            var _a, _b;
             let values = this.range.getValues();
             if (includeHeader) {
                 return values;
             }
-            return this.getValuesRange().getValues();
+            return (_b = (_a = this.getValuesRange().range) === null || _a === void 0 ? void 0 : _a.getValues()) !== null && _b !== void 0 ? _b : [];
         }
         getValuesRange() {
             let row = this.range.getRow();
@@ -95,7 +99,15 @@ var CoverSheets;
                 column += this.headerSize;
                 numColumns -= this.headerSize;
             }
-            return this.range.getSheet().getRange(row, column, numRows, numColumns);
+            const valuesRange = {
+                row: row,
+                column: column,
+                range: undefined,
+            };
+            if (numRows > 0 && numColumns > 0) {
+                valuesRange.range = this.range.getSheet().getRange(row, column, numRows, numColumns);
+            }
+            return valuesRange;
         }
         /**
          * Replace the data in this range. Range will be resized as necessary.
@@ -103,23 +115,30 @@ var CoverSheets;
          * @param preserveHeaders if true, replace values only
          */
         replaceData(data, preserveHeaders = false) {
+            var _a;
             let oldRange = this.range;
-            let replaceRange = preserveHeaders ? this.getValuesRange() : oldRange;
+            let row = this.range.getRow();
+            let column = this.range.getColumn();
+            if (preserveHeaders) {
+                let valuesRange = this.getValuesRange();
+                row = valuesRange.row;
+                column = valuesRange.column;
+                (_a = valuesRange.range) === null || _a === void 0 ? void 0 : _a.clearContent();
+            }
             let sheet = this.range.getSheet();
-            let newRange = sheet.getRange(replaceRange.getRow(), replaceRange.getColumn(), data.length, data[0].length);
-            replaceRange.clearContent();
+            let numRows = data.length;
+            let numColumns = data[0].length;
+            let newRange = sheet.getRange(row, column, numRows, numColumns);
             newRange.setValues(data);
             if (preserveHeaders) {
-                let numRows = newRange.getNumRows();
-                let numColumns = newRange.getNumColumns();
                 if (this.headerType === "RowBased") {
                     numRows += this.headerSize;
                 }
                 else if (this.headerType === "ColumnBased") {
                     numColumns += this.headerSize;
                 }
-                newRange = sheet.getRange(oldRange.getRow(), oldRange.getColumn(), numRows, numColumns);
             }
+            newRange = sheet.getRange(oldRange.getRow(), oldRange.getColumn(), numRows, numColumns);
             this.range = newRange;
             return newRange;
         }
@@ -210,8 +229,10 @@ var CoverSheets;
             }
             return namedRange;
         }
-        replaceData(data) {
-            this.range = super.replaceData(data);
+        replaceData(data, preserveHeaders = false) {
+            var _a;
+            this.range = super.replaceData(data, preserveHeaders);
+            (_a = this.namedRange) === null || _a === void 0 ? void 0 : _a.setRange(this.range);
             return this.range;
         }
     }

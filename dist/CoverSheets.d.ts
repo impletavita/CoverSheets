@@ -12,6 +12,11 @@ declare namespace CoverSheets {
         headerType: HeaderType;
         headerSize: number;
     };
+    type ValuesRange = {
+        range?: GoogleAppsScript.Spreadsheet.Range;
+        row: number;
+        column: number;
+    };
     class Range {
         headerType: HeaderType;
         headerSize: number;
@@ -26,11 +31,13 @@ declare namespace CoverSheets {
          */
         getValuesByHeader(header: string): undefined[];
         getValues(includeHeader?: boolean): any[][];
+        getValuesRange(): ValuesRange;
         /**
-         * Replace all the data in this range. Range will be resized as necessary.
+         * Replace the data in this range. Range will be resized as necessary.
          * @param data new data to replace with
+         * @param preserveHeaders if true, replace values only
          */
-        replaceData(data: any[]): void;
+        replaceData(data: any[], preserveHeaders?: boolean): GoogleAppsScript.Spreadsheet.Range;
         /**
          * Add data to the range.
          * If the range is RowBased, new rows will be added. If it is
@@ -47,7 +54,10 @@ declare namespace CoverSheets {
 declare namespace CoverSheets {
     class NamedRange extends Range {
         rangeName: string;
+        namedRange?: GoogleAppsScript.Spreadsheet.NamedRange;
         constructor(rangeName: string, headerType?: HeaderType, headerSize?: number);
+        static getNamedRange(rangeName: string): GoogleAppsScript.Spreadsheet.NamedRange | undefined;
+        replaceData(data: any[], preserveHeaders?: boolean): GoogleAppsScript.Spreadsheet.Range;
     }
 }
 declare namespace CoverSheets {

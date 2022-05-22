@@ -235,3 +235,9 @@ global.SpreadsheetApp = {
 
   getActiveSpreadsheet: () => activeSpreadsheet,
 };
+
+global.Logger = {
+  log: (msg) => {
+    console.log(msg);
+  }
+}

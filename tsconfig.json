@@ -4,11 +4,11 @@
     "module": "amd",
     "declaration": true,
     "noImplicitAny": false,
-    "outFile": "lib/CoverSheets.js",
+    "outFile": "dist/CoverSheets.js",
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
   },
   "include": ["src"],
-  "exclude": ["node_modules", "lib", "container-tests"]
+  "exclude": ["node_modules", "lib", "container-tests", "dist"]
 }

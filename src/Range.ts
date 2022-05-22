@@ -13,6 +13,12 @@ namespace CoverSheets {
     headerSize: number;
   }
 
+  export type ValuesRange = {
+    range?: GoogleAppsScript.Spreadsheet.Range;
+    row: number;
+    column: number;
+  }
+
   export class Range {
     headerType: HeaderType;
     headerSize: number;
@@ -95,6 +101,9 @@ namespace CoverSheets {
 
       let values = this.getValues();
 
+      if (values.length == 0) {
+        return [];
+      }
       const headers = this.getHeaders();
       const headerIndex = headers.indexOf(header);
 
@@ -110,16 +119,16 @@ namespace CoverSheets {
     }
 
     getValues(includeHeader = false) {
-      let values = this.range.getValues();
+      let values:undefined[][] = this.range.getValues();
 
       if (includeHeader) {
         return values;
       }
 
-      return this.getValuesRange().getValues();
+      return this.getValuesRange().range?.getValues() ?? [];
     }
 
-    getValuesRange(): GoogleAppsScript.Spreadsheet.Range {
+    getValuesRange(): ValuesRange {
       let row = this.range.getRow();
       let column = this.range.getColumn();
       let numRows = this.range.getNumRows();
@@ -132,8 +141,18 @@ namespace CoverSheets {
         column += this.headerSize;
         numColumns -= this.headerSize;
       }
+      
+      const valuesRange:ValuesRange = {
+        row: row,
+        column: column,
+        range: undefined,
+      }
 
-      return this.range.getSheet().getRange(row, column, numRows, numColumns);
+      if (numRows > 0 && numColumns > 0) {
+        valuesRange.range = this.range.getSheet().getRange(row, column, numRows, numColumns);
+      }
+
+      return valuesRange;
     }
 
     /**
@@ -143,25 +162,40 @@ namespace CoverSheets {
      */
     replaceData(data:any[], preserveHeaders=false): GoogleAppsScript.Spreadsheet.Range {
       let oldRange = this.range;
-      let replaceRange = preserveHeaders ? this.getValuesRange() : oldRange;
-      let sheet = this.range.getSheet();
-      let newRange = sheet.getRange(replaceRange.getRow(), 
-        replaceRange.getColumn(), data.length, data[0].length);
 
-      replaceRange.clearContent();
-      newRange.setValues(data);
+      let row = this.range.getRow();
+      let column = this.range.getColumn();
 
       if (preserveHeaders) {
-        let numRows = newRange.getNumRows();
-        let numColumns = newRange.getNumColumns();
+        let valuesRange = this.getValuesRange();
+
+        row = valuesRange.row;
+        column = valuesRange.column;
+
+        valuesRange.range?.clearContent()
+      }
+
+      let sheet = this.range.getSheet();
+
+      
+      let numRows = data.length;
+      let numColumns = data[0].length;
+
+      let newRange = sheet.getRange(row, column, 
+        numRows, numColumns);
+
+      newRange.setValues(data);
+ 
+      if (preserveHeaders) {
         if (this.headerType === "RowBased") {
           numRows += this.headerSize;
         } else if (this.headerType === "ColumnBased") {
           numColumns += this.headerSize;
         }
-        newRange = sheet.getRange(oldRange.getRow(), oldRange.getColumn(),
-          numRows, numColumns);
       }
+      
+      newRange = sheet.getRange(oldRange.getRow(), oldRange.getColumn(),
+        numRows, numColumns);
 
       this.range = newRange;
       return newRange;
@@ -175,7 +209,6 @@ namespace CoverSheets {
      */
     addData(data:undefined[][]) {
       let oldRange = this.range;
-
 
       let newStartRow = oldRange.getRow() + oldRange.getNumRows();
       let newStartColumn = oldRange.getColumn();
