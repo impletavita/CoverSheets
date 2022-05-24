@@ -10,6 +10,10 @@ namespace CoverSheets {
     constructor(rangeName: string, headerType:HeaderType = "None", headerSize:number = 1) {
       const namedRange = NamedRange.getNamedRange(rangeName);
 
+      if (!namedRange) {
+        throw new Error(`Range named ${rangeName} not found!`);
+      }
+
       super({range:namedRange?.getRange(), headerType: headerType, headerSize: headerSize});
       
       this.rangeName = rangeName;
@@ -29,9 +33,10 @@ namespace CoverSheets {
       // Handle scenario where named range does not follow <worksheetname>!<rangename> format.
       const rangeNameParts = rangeName.split('!');
       if (rangeNameParts.length == 2) {
-        const worksheetName = rangeNameParts[0].replace(/["']/, '');
+        const worksheetName = rangeNameParts[0].replace(/["']/g, '');
 
-        namedRange = namedRanges.find(nr => nr.getName() === rangeNameParts[1]);
+        const possibleNames = [rangeNameParts[1], `${worksheetName}!${rangeNameParts[1]}`];
+        namedRange = namedRanges.find(nr => possibleNames.includes(nr.getName()));
 
         if (namedRange && namedRange.getRange().getSheet().getName() === worksheetName) {
           return namedRange;
