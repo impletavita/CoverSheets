@@ -153,6 +153,13 @@ const namedRangeMap = {
     col: 20,
     numRows: 5,
     numColumns: 5
+  },
+  
+  "SomeSheet!FourthNamedRange" : {
+    row: 12,
+    col: 16,
+    numRows: 4,
+    numColumns: 3
   }
 }
 
@@ -179,7 +186,8 @@ class Spreadsheet {
   constructor() {
     this.namedRanges = [
       "FirstNamedRange",
-      "'Work Sheet With Spaces'!SecondNamedRange"
+      "'Work Sheet With Spaces'!SecondNamedRange",
+      "SomeSheet!FourthNamedRange"
     ].map(n => new NamedRange(n, this.getRangeByName(n)));
   
   }
@@ -187,7 +195,8 @@ class Spreadsheet {
   sheets = [
     'Worksheet1', 
     'Some Sheet', 
-    'Work Sheet With Spaces'
+    'Work Sheet With Spaces',
+    'SomeSheet'
   ].map(s => new Sheet(s));
 
   getSheets() {
@@ -207,7 +216,14 @@ class Spreadsheet {
         return null;
       }
 
-      return new Range(range.row, range.col, range.numRows, range.numColumns);
+      let worksheet;
+      const rangeNameParts = name.split('!');
+      if (rangeNameParts.length == 2) {
+        const worksheetName = rangeNameParts[0].replace(/["']/g, '');
+        worksheet = this.getSheetByName(worksheetName);
+      }
+
+      return new Range(range.row, range.col, range.numRows, range.numColumns, worksheet);
   }
 
   insertSheet(sheetName) {

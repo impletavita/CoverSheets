@@ -14,4 +14,25 @@ test('NamedRange with one row of headers', () => {
   */
 })
 
+test('NamedRange with fully qualified name', () => {
+  let range = new CoverSheets.NamedRange("'Work Sheet With Spaces'!SecondNamedRange",
+    "RowBased", 1);
+    range.range.fillDefaultData();
+    
+    expect(range.getHeaders()).toEqual([ 'VALUE_1_1', 'VALUE_1_2', 'VALUE_1_3', 'VALUE_1_4', 'VALUE_1_5' ]);
+
+    range = new CoverSheets.NamedRange("SomeSheet!FourthNamedRange",
+      "RowBased", 1);
+    
+    range.range.fillDefaultData();
+    
+    expect(range.getHeaders()).toEqual([ 'VALUE_1_1', 'VALUE_1_2', 'VALUE_1_3']);
+
+   range = new CoverSheets.NamedRange("'SomeSheet'!FourthNamedRange",
+      "RowBased", 1);
+    
+    range.range.fillDefaultData();
+    
+    expect(range.getHeaders()).toEqual([ 'VALUE_1_1', 'VALUE_1_2', 'VALUE_1_3']);
+})
 // TODO: Duplicate tests from Range.RowBased.test and Range.ColumnBased.test as well.

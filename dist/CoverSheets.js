@@ -204,6 +204,9 @@ var CoverSheets;
     class NamedRange extends CoverSheets.Range {
         constructor(rangeName, headerType = "None", headerSize = 1) {
             const namedRange = NamedRange.getNamedRange(rangeName);
+            if (!namedRange) {
+                throw new Error(`Range named ${rangeName} not found!`);
+            }
             super({ range: namedRange === null || namedRange === void 0 ? void 0 : namedRange.getRange(), headerType: headerType, headerSize: headerSize });
             this.rangeName = rangeName;
             this.namedRange = namedRange;
@@ -218,8 +221,10 @@ var CoverSheets;
             // Handle scenario where named range does not follow <worksheetname>!<rangename> format.
             const rangeNameParts = rangeName.split('!');
             if (rangeNameParts.length == 2) {
-                const worksheetName = rangeNameParts[0].replace(/["']/, '');
-                namedRange = namedRanges.find(nr => nr.getName() === rangeNameParts[1]);
+                const worksheetName = rangeNameParts[0].replace(/["']/g, '');
+                const possibleNames = [rangeNameParts[1], `${worksheetName}!${rangeNameParts[1]}`];
+                namedRange = namedRanges.find(nr => possibleNames.includes(nr.getName()));
+                Logger.log(`WorksheetName: ${namedRange === null || namedRange === void 0 ? void 0 : namedRange.getRange().getSheet().getName()}`);
                 if (namedRange && namedRange.getRange().getSheet().getName() === worksheetName) {
                     return namedRange;
                 }
