@@ -40,21 +40,7 @@ var CoverSheets;
             return retVal;
         }
         getHeaders() {
-            const values = this.range.getValues();
-            const coaleseHeaders = (headers) => {
-                headers.forEach(d => d.slice(1).forEach((dd, i) => d[i + 1] = (dd === '' ? d[i] : dd)));
-                return headers.reduce((r, a) => a.map((b, i) => { var _a; return ((_a = r[i]) !== null && _a !== void 0 ? _a : '') + b; }), []);
-            };
-            switch (this.headerType) {
-                case "RowBased":
-                    return coaleseHeaders(values.slice(0, this.headerSize));
-                case "ColumnBased":
-                    let headerData = values.map(v => v.slice(0, this.headerSize));
-                    headerData = CoverSheets.Utils.transpose(headerData);
-                    return coaleseHeaders(headerData);
-                default:
-                    return [];
-            }
+            return new CoverSheets.RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize).getHeaders();
         }
         /**
          * For the specified header, return all the values as an array
@@ -180,16 +166,35 @@ var CoverSheets;
             return obj;
         }
         addObjects(objects) {
+            this.addData(this.convertObjectsToData(objects));
+        }
+        convertObjectsToData(objects) {
             const headers = this.getHeaders();
-            let newData = [];
+            let data = [];
             headers.forEach(h => {
                 const values = objects.map(o => { var _a; return (_a = o[h]) !== null && _a !== void 0 ? _a : ''; });
-                newData.push(values);
+                data.push(values);
             });
             if (this.headerType == "RowBased") {
-                newData = CoverSheets.Utils.transpose(newData);
+                data = CoverSheets.Utils.transpose(data);
             }
-            this.addData(newData);
+            return data;
+        }
+        /**
+         * Add the specified array of objects after the first object that matches
+         * the specified matcher. If objects of the specfied keys already exist,
+         * merge the data instead.
+         */
+        addObjectsAfter(matcher, objects) {
+            let values = this.getDataAsObjects();
+            let index = values.findIndex(v => matcher(v));
+            if (index == -1) {
+                this.addObjects(objects);
+                return;
+            }
+        }
+        modify() {
+            return new CoverSheets.RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize);
         }
         metadata(range = this.range) {
             return `row: ${range.getRow()}, col: ${range.getColumn()},` +
@@ -224,7 +229,6 @@ var CoverSheets;
                 const worksheetName = rangeNameParts[0].replace(/["']/g, '');
                 const possibleNames = [rangeNameParts[1], `${worksheetName}!${rangeNameParts[1]}`];
                 namedRange = namedRanges.find(nr => possibleNames.includes(nr.getName()));
-                Logger.log(`WorksheetName: ${namedRange === null || namedRange === void 0 ? void 0 : namedRange.getRange().getSheet().getName()}`);
                 if (namedRange && namedRange.getRange().getSheet().getName() === worksheetName) {
                     return namedRange;
                 }
@@ -242,6 +246,34 @@ var CoverSheets;
         }
     }
     CoverSheets.NamedRange = NamedRange;
+})(CoverSheets || (CoverSheets = {}));
+var CoverSheets;
+(function (CoverSheets) {
+    class RangeDataBuilder {
+        constructor(data, headerType, headerSize) {
+            this.data = data;
+            this.headerType = headerType;
+            this.headerSize = headerSize;
+        }
+        getHeaders() {
+            const coaleseHeaders = (headers) => {
+                headers.forEach(d => d.slice(1).forEach((dd, i) => d[i + 1] = (dd === '' ? d[i] : dd)));
+                return headers.reduce((r, a) => a.map((b, i) => { var _a; return ((_a = r[i]) !== null && _a !== void 0 ? _a : '') + b; }), []);
+            };
+            switch (this.headerType) {
+                case "RowBased":
+                    const headerRows = this.data.slice(0, this.headerSize);
+                    return coaleseHeaders(headerRows);
+                case "ColumnBased":
+                    let headerColumns = this.data.map(v => v.slice(0, this.headerSize));
+                    headerColumns = CoverSheets.Utils.transpose(headerColumns);
+                    return coaleseHeaders(headerColumns);
+                default:
+                    return [];
+            }
+        }
+    }
+    CoverSheets.RangeDataBuilder = RangeDataBuilder;
 })(CoverSheets || (CoverSheets = {}));
 var CoverSheets;
 (function (CoverSheets) {
@@ -405,12 +437,14 @@ var CoverSheets;
 })(CoverSheets || (CoverSheets = {}));
 var Range = CoverSheets.Range;
 var NamedRange = CoverSheets.NamedRange;
+var RangeDataBuilder = CoverSheets.RangeDataBuilder;
 var Spreadsheet = CoverSheets.Spreadsheet;
 var Utils = CoverSheets.Utils;
 var Worksheet = CoverSheets.Worksheet;
 var exports = exports || {};
 exports.Range = CoverSheets.Range;
 exports.NamedRange = CoverSheets.NamedRange;
+exports.RangeDataBuilder = CoverSheets.RangeDataBuilder;
 exports.Spreadsheet = CoverSheets.Spreadsheet;
 exports.Utils = CoverSheets.Utils;
 exports.Worksheet = CoverSheets.Worksheet;

@@ -45,9 +45,17 @@ declare namespace CoverSheets {
          * @param data data to append to range
          */
         addData(data: undefined[][]): void;
-        getDataAsObjects(): {}[];
-        getVectorAsObject(vector: any, headers: any): {};
+        getDataAsObjects<T extends {}>(): T[];
+        getVectorAsObject<T extends {}>(vector: any, headers: any): T;
         addObjects(objects: any): void;
+        convertObjectsToData(objects: any): undefined[][];
+        /**
+         * Add the specified array of objects after the first object that matches
+         * the specified matcher. If objects of the specfied keys already exist,
+         * merge the data instead.
+         */
+        addObjectsAfter<T>(matcher: (item: T) => boolean, objects: T[]): void;
+        modify(): RangeDataBuilder;
         metadata(range?: GoogleAppsScript.Spreadsheet.Range): string;
     }
 }
@@ -58,6 +66,15 @@ declare namespace CoverSheets {
         constructor(rangeName: string, headerType?: HeaderType, headerSize?: number);
         static getNamedRange(rangeName: string): GoogleAppsScript.Spreadsheet.NamedRange | undefined;
         replaceData(data: any[], preserveHeaders?: boolean): GoogleAppsScript.Spreadsheet.Range;
+    }
+}
+declare namespace CoverSheets {
+    class RangeDataBuilder {
+        data: undefined[][];
+        headerType: string;
+        headerSize: number;
+        constructor(data: undefined[][], headerType: HeaderType, headerSize: number);
+        getHeaders(): string[];
     }
 }
 declare namespace CoverSheets {

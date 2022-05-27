@@ -73,23 +73,7 @@ namespace CoverSheets {
     }
 
     getHeaders() : string[] {
-      const values = this.range.getValues();
-
-      const coaleseHeaders = (headers:string[][]):string[] =>  {
-        headers.forEach(d => d.slice(1).forEach((dd,i) => d[i+1] = (dd === '' ? d[i] : dd)));
-        return headers.reduce((r, a) => a.map((b, i) => (r[i] ?? '')+ b), []);
-      }
-
-      switch(this.headerType) {
-        case "RowBased":
-          return coaleseHeaders(values.slice(0, this.headerSize));
-        case "ColumnBased":
-          let headerData = values.map(v => v.slice(0, this.headerSize));
-          headerData = Utils.transpose(headerData);
-          return coaleseHeaders(headerData);
-        default:
-          return [];
-      }
+      return new RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize).getHeaders();
     }
 
     /**
@@ -231,7 +215,7 @@ namespace CoverSheets {
         oldRange.getNumRows() + rowsToAdd, oldRange.getNumColumns() + columnsToAdd);      
     }
 
-    getDataAsObjects() {
+    getDataAsObjects<T extends {}>(): T[] {
       let headers = this.getHeaders();
       let values = this.getValues();
 
@@ -239,33 +223,57 @@ namespace CoverSheets {
         values = Utils.transpose(values);
       }
       
-      return values.map(v => this.getVectorAsObject(v, headers));
+      return values.map(v => this.getVectorAsObject<T>(v, headers));
     }
 
-    getVectorAsObject(vector, headers) {
+    getVectorAsObject<T extends {}>(vector, headers): T {
       const obj = {}
 
       headers.forEach((h, i) => {
         obj[h] = vector[i];
       })
 
-      return obj;
+      return obj as T;
     }
 
     addObjects(objects) {
+      this.addData(this.convertObjectsToData(objects));
+    }
+
+    convertObjectsToData(objects) {
       const headers = this.getHeaders();
-      let newData:undefined[][] = [];
+      let data:undefined[][] = [];
 
       headers.forEach(h => {
         const values = objects.map(o => o[h] ?? '')
-        newData.push(values)
+        data.push(values)
       });
 
       if (this.headerType == "RowBased") {
-        newData = Utils.transpose(newData);
+        data = Utils.transpose(data);
       }
 
-      this.addData(newData);
+      return data;
+    }
+
+    /**
+     * Add the specified array of objects after the first object that matches
+     * the specified matcher. If objects of the specfied keys already exist,
+     * merge the data instead.
+     */
+    addObjectsAfter<T>(matcher: (item:T) => boolean, objects:T[]) {
+      let values:T[] = this.getDataAsObjects<T>();
+      let index = values.findIndex(v => matcher(v));
+      if (index == -1) {
+        this.addObjects(objects);
+        return;
+      }
+
+      
+    }
+
+    modify() {
+      return new RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize);
     }
 
     metadata(range = this.range) {

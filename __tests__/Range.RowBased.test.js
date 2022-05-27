@@ -181,3 +181,29 @@ test('Add data as objects', () => {
   values = range.getValues();
   expect(values.length).toEqual(4);
 })
+
+test('addObjectsAfter', () => {
+  let range = new CoverSheets.Range({
+    sheetName: "Some Sheet",
+    row: 1, column: 1, numRows: 5, numColumns: 4, 
+    headerType:"RowBased", headerSize: 1
+  })
+
+  range.range.fillDefaultData();
+
+  const headers = range.getHeaders();
+  const objectsToAdd = [
+    {
+      [headers[0]]: "ADDED_VALUE_6_1",
+      [headers[1]]: "ADDED_VALUE_6_2",
+      [headers[2]]: "ADDED_VALUE_6_3",
+      [headers[3]]: "ADDED_VALUE_6_4",
+    },
+  ];
+
+  range.addObjectsAfter(t => t.VALUE_1_3 === "VALUE_3_3", objectsToAdd);
+
+  const values = range.getValues();
+  // expect(values.length).toEqual(5);
+  console.log(values);
+})
