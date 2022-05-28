@@ -205,5 +205,4 @@ test('addObjectsAfter', () => {
 
   const values = range.getValues();
   // expect(values.length).toEqual(5);
-  console.log(values);
 })

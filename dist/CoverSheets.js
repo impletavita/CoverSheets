@@ -25,7 +25,7 @@ var CoverSheets;
                 numRows: 1,
                 numColumns: 1,
                 headerType: "None",
-                headerSize: 1
+                headerSize: 0
             };
             if (params === null || params === void 0 ? void 0 : params.range) {
                 params.worksheet = new CoverSheets.Worksheet(params.range.getSheet());
@@ -193,7 +193,7 @@ var CoverSheets;
                 return;
             }
         }
-        modify() {
+        getBuilder() {
             return new CoverSheets.RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize);
         }
         metadata(range = this.range) {
@@ -271,6 +271,35 @@ var CoverSheets;
                 default:
                     return [];
             }
+        }
+        /*
+            getDataAsObjects<T extends {}>(): T[] {
+              let headers = this.getHeaders();
+              let values = this.getValues();
+              
+              if (this.headerType == "ColumnBased") {
+                values = Utils.transpose(values);
+              }
+              
+              return values.map(v => this.getVectorAsObject<T>(v, headers));
+            }
+        */
+        getValues() {
+            let row = 0;
+            let column = 0;
+            let numRows = this.data.length;
+            let numColumns = this.data[0].length;
+            if (this.headerType == "RowBased") {
+                row += this.headerSize;
+            }
+            else if (this.headerType == "ColumnBased") {
+                column += this.headerSize;
+            }
+            let values = [];
+            if (numRows > 0 && numColumns > 0) {
+                values = this.data.slice(row, numRows).map(e => e.slice(column, numColumns));
+            }
+            return values;
         }
     }
     CoverSheets.RangeDataBuilder = RangeDataBuilder;

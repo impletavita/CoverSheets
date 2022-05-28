@@ -1,4 +1,4 @@
-const { Worksheet } = require("../dist/CoverSheets");
+const CoverSheets = require("../dist/CoverSheets");
 
 class Range {
   set values(data) {
@@ -252,8 +252,46 @@ global.SpreadsheetApp = {
   getActiveSpreadsheet: () => activeSpreadsheet,
 };
 
+global.DataStubber = class {
+  static getData(numRows, numColumns, headerType, headerSize) {
+    const data = [];
+    
+    if (headerType == "ColumnBased") {
+      for (let r = 1; r <= numRows; r++) {
+        let rowData = new Array(headerSize).fill('').map((v, c) => `HEADER_${r}_${c+1}`);
+        rowData = rowData
+          .concat(new Array(numColumns - headerSize).fill('')
+          .map((v, c) => `VALUE_${r}_${c + headerSize + 1}`));
+        data.push(rowData);
+      }
+    } else {
+
+      for(let r = 1; r <= headerSize; r++) {
+        data.push(new Array(numColumns).fill('').map((v, c) => `HEADER_${r}_${c+1}`));
+      }
+
+      for (let r = headerSize + 1; r <= numRows; r++) {
+        data.push(new Array(numColumns).fill('').map((v, c) => `VALUE_${r}_${c+1}`));
+      }
+    }
+    return data;
+  }
+}
+
 global.Logger = {
   log: (msg) => {
     console.log(msg);
   }
 }
+
+CoverSheets.RangeDataBuilder.prototype.setDefaultData = function() {
+
+  const values = DataStubber.getData(this.range.getNumRows(), this.range.getNumColumns(),
+    this.headerType, this.headerSize);
+  
+  this.range.setValues(values);
+  
+  return values;
+}
+
+global.CoverSheets = CoverSheets;

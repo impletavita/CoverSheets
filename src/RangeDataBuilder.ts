@@ -28,13 +28,44 @@ namespace CoverSheets {
           return [];
       }
     }
+/*
+    getDataAsObjects<T extends {}>(): T[] {
+      let headers = this.getHeaders();
+      let values = this.getValues();
+      
+      if (this.headerType == "ColumnBased") {
+        values = Utils.transpose(values);
+      }
+      
+      return values.map(v => this.getVectorAsObject<T>(v, headers));
+    }
+*/
+    getValues() {
+      let row = 0;
+      let column = 0;
+      let numRows = this.data.length;
+      let numColumns = this.data[0].length;
+ 
+      if (this.headerType == "RowBased") {
+        row += this.headerSize;
+      } else if (this.headerType == "ColumnBased") {
+        column += this.headerSize;
+      }
+      
+      let values:undefined[][] = [];
+      if (numRows > 0 && numColumns > 0) {
+        values = this.data.slice(row, numRows).map(e => e.slice(column, numColumns))
+      }
+
+      return values;
+    }
 
     /**
      * Add the specified array of objects after the first object that matches
      * the specified matcher. If objects of the specfied keys already exist,
      * merge the data instead.
      */
-    /* 
+    /*
     addObjectsAfter<T>(matcher: (item:T) => boolean, objects:T[]) {
       let values:T[] = this.getDataAsObjects<T>();
       let index = values.findIndex(v => matcher(v));

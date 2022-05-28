@@ -53,7 +53,7 @@ namespace CoverSheets {
         numRows: 1,
         numColumns: 1,
         headerType: "None",
-        headerSize: 1
+        headerSize: 0
       }
 
       if (params?.range) {
@@ -268,11 +268,9 @@ namespace CoverSheets {
         this.addObjects(objects);
         return;
       }
-
-      
     }
 
-    modify() {
+    getBuilder() {
       return new RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize);
     }
 

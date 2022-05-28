@@ -55,7 +55,7 @@ declare namespace CoverSheets {
          * merge the data instead.
          */
         addObjectsAfter<T>(matcher: (item: T) => boolean, objects: T[]): void;
-        modify(): RangeDataBuilder;
+        getBuilder(): RangeDataBuilder;
         metadata(range?: GoogleAppsScript.Spreadsheet.Range): string;
     }
 }
@@ -75,6 +75,7 @@ declare namespace CoverSheets {
         headerSize: number;
         constructor(data: undefined[][], headerType: HeaderType, headerSize: number);
         getHeaders(): string[];
+        getValues(): undefined[][];
     }
 }
 declare namespace CoverSheets {
