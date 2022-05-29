@@ -253,28 +253,68 @@ global.SpreadsheetApp = {
 };
 
 global.DataStubber = class {
-  static getData(numRows, numColumns, headerType, headerSize) {
+  static getData(options) {
     const data = [];
     
-    if (headerType == "ColumnBased") {
-      for (let r = 1; r <= numRows; r++) {
-        let rowData = new Array(headerSize).fill('').map((v, c) => `HEADER_${r}_${c+1}`);
+    options = DataStubber.initOptions(options);
+
+    if (options.headerType == "ColumnBased") {
+      let numColumns = options.numColumns;
+      
+      // TODO: This logic may need rework. Revisit
+      // TODO: when writing RangeDataBuilder.ColumnBased.test.js
+      for (let r = 1; r <= options.numRows; r++) {
+        let rowData = [];
+        if (options.addHeaders) {
+          rowData = new Array(options.headerSize)
+            .fill('').map((v, c) => `HEADER_${r}_${c+1}`);
+        }
+
+        const columnOffset = options.headerSize + options.columnOffset + 1;
+
         rowData = rowData
-          .concat(new Array(numColumns - headerSize).fill('')
-          .map((v, c) => `VALUE_${r}_${c + headerSize + 1}`));
-        data.push(rowData);
+          .concat(new Array(numColumns - options.headerSize).fill('')
+          .map((v, c) => options.modifier(`VALUE_${r}_${c + columnOffset}`)));
+        
+          data.push(rowData);
       }
     } else {
 
-      for(let r = 1; r <= headerSize; r++) {
-        data.push(new Array(numColumns).fill('').map((v, c) => `HEADER_${r}_${c+1}`));
+      if (options.addHeaders) {
+        for(let r = 1; r <= options.headerSize; r++) {
+          data.push(new Array(options.numColumns).fill('').map((v, c) => `HEADER_${r}_${c+1}`));
+        }
+        options.numRows -= options.headerSize;
       }
 
-      for (let r = headerSize + 1; r <= numRows; r++) {
-        data.push(new Array(numColumns).fill('').map((v, c) => `VALUE_${r}_${c+1}`));
+      const rowOffset = data.length + options.rowOffset + 1;
+      
+      for (let r = 0; r < options.numRows; r++) {
+        data.push(new Array(options.numColumns).fill('')
+          .map((v, c) => options.modifier(`VALUE_${r + rowOffset}_${c+1}`)));
       }
     }
+
     return data;
+  }
+
+  static initOptions(options) {
+    if (!options.headerSize) {
+      options.headerSize = 0;
+    }
+    if (!options.rowOffset) {
+      options.rowOffset = 0;
+    }
+    if (!options.columnOffset) {
+      options.columnOffset = 0;
+    }
+    if (!options.modifier) {
+      options.modifier = v => v;
+    }
+    if (!options.addHeaders) {
+      options.addHeaders = true;
+    }
+    return options;
   }
 }
 
@@ -284,7 +324,7 @@ global.Logger = {
   }
 }
 
-CoverSheets.RangeDataBuilder.prototype.setDefaultData = function() {
+CoverSheets.Range.prototype.setDefaultData = function() {
 
   const values = DataStubber.getData(this.range.getNumRows(), this.range.getNumColumns(),
     this.headerType, this.headerSize);

@@ -75,7 +75,18 @@ declare namespace CoverSheets {
         headerSize: number;
         constructor(data: undefined[][], headerType: HeaderType, headerSize: number);
         getHeaders(): string[];
+        getDataAsObjects<T extends {}>(): T[];
+        getVectorAsObject<T extends {}>(vector: any, headers: any): T;
         getValues(): undefined[][];
+        addData(data: undefined[][]): void;
+        /**
+         * Add the specified array of objects after the first object that matches
+         * the specified matcher. If objects of the specfied keys already exist,
+         * merge the data instead.
+         */
+        insertObjects<T>(matcher: (item: T) => boolean, objects: T[], after?: boolean): void;
+        addObjects(objects: any): void;
+        convertObjectsToData(objects: any): undefined[][];
     }
 }
 declare namespace CoverSheets {

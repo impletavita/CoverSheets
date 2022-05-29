@@ -272,18 +272,21 @@ var CoverSheets;
                     return [];
             }
         }
-        /*
-            getDataAsObjects<T extends {}>(): T[] {
-              let headers = this.getHeaders();
-              let values = this.getValues();
-              
-              if (this.headerType == "ColumnBased") {
-                values = Utils.transpose(values);
-              }
-              
-              return values.map(v => this.getVectorAsObject<T>(v, headers));
+        getDataAsObjects() {
+            let headers = this.getHeaders();
+            let values = this.getValues();
+            if (this.headerType == "ColumnBased") {
+                values = CoverSheets.Utils.transpose(values);
             }
-        */
+            return values.map(v => this.getVectorAsObject(v, headers));
+        }
+        getVectorAsObject(vector, headers) {
+            const obj = {};
+            headers.forEach((h, i) => {
+                obj[h] = vector[i];
+            });
+            return obj;
+        }
         getValues() {
             let row = 0;
             let column = 0;
@@ -297,9 +300,57 @@ var CoverSheets;
             }
             let values = [];
             if (numRows > 0 && numColumns > 0) {
-                values = this.data.slice(row, numRows).map(e => e.slice(column, numColumns));
+                values = this.data.slice(row, numRows).map(e => e.slice(column, numColumns + 1));
             }
             return values;
+        }
+        addData(data) {
+            // todo: Exception when data.rows/data.columns don't match this.data.length/this.data[0].length
+            // todo: Add ablity to modify data to current structure or modify structure to match new data 
+            if (this.headerType === "ColumnBased") {
+                for (let row = 0; row < this.data.length; row++) {
+                    this.data[row] = this.data[row].concat(data[row]);
+                }
+            }
+            else {
+                for (let row = 0; row < data.length; row++) {
+                    this.data.push(data[row]);
+                }
+            }
+        }
+        /**
+         * Add the specified array of objects after the first object that matches
+         * the specified matcher. If objects of the specfied keys already exist,
+         * merge the data instead.
+         */
+        insertObjects(matcher, objects, after = true) {
+            let values = this.getDataAsObjects();
+            let index = values.findIndex(v => matcher(v));
+            if (index == -1) {
+                this.addObjects(objects);
+                return;
+            }
+            index = index + this.headerSize + (after ? 1 : 0);
+            this.data = [
+                ...this.data.slice(0, index),
+                ...this.convertObjectsToData(objects),
+                ...this.data.slice(index)
+            ];
+        }
+        addObjects(objects) {
+            this.addData(this.convertObjectsToData(objects));
+        }
+        convertObjectsToData(objects) {
+            const headers = this.getHeaders();
+            let data = [];
+            headers.forEach(h => {
+                const values = objects.map(o => { var _a; return (_a = o[h]) !== null && _a !== void 0 ? _a : ''; });
+                data.push(values);
+            });
+            if (this.headerType == "RowBased") {
+                data = CoverSheets.Utils.transpose(data);
+            }
+            return data;
         }
     }
     CoverSheets.RangeDataBuilder = RangeDataBuilder;
