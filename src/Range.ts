@@ -113,8 +113,6 @@ namespace CoverSheets {
     }
 
     getValuesRange(defaultRows = 0, defaultColumns = 0): ValuesRange {
-      console.log(`getValuesRange ${defaultRows}; ${defaultColumns}`);
-
       let row = this.range.getRow();
       let column = this.range.getColumn();
       let numRows = this.range.getNumRows();
@@ -269,7 +267,6 @@ namespace CoverSheets {
        const rangeDataBuilder:RangeDataBuilder = new RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize)
         .insertObjects(matcher, objects, after);
 
-      console.log(rangeDataBuilder.getValues());
       this.setValues(rangeDataBuilder.getValues());
      }
 
