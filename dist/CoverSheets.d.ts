@@ -55,6 +55,11 @@ declare namespace CoverSheets {
          * merge the data instead.
          */
         insertObjects<T>(matcher: (item: T) => boolean, objects: T[], after?: boolean): void;
+        /**
+         * Sets the "values" portion of the range. If this is a headered range,
+         * the header is not modified.
+         * @param values Values to be set in the range
+         */
         setValues(values: undefined[][]): void;
         getBuilder(): RangeDataBuilder;
         metadata(range?: GoogleAppsScript.Spreadsheet.Range): string;

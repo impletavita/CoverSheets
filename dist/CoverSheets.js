@@ -73,7 +73,6 @@ var CoverSheets;
             return (_b = (_a = this.getValuesRange().range) === null || _a === void 0 ? void 0 : _a.getValues()) !== null && _b !== void 0 ? _b : [];
         }
         getValuesRange(defaultRows = 0, defaultColumns = 0) {
-            console.log(`getValuesRange ${defaultRows}; ${defaultColumns}`);
             let row = this.range.getRow();
             let column = this.range.getColumn();
             let numRows = this.range.getNumRows();
@@ -105,7 +104,6 @@ var CoverSheets;
          */
         replaceData(data, preserveHeaders = false) {
             var _a;
-            let oldRange = this.range;
             let row = this.range.getRow();
             let column = this.range.getColumn();
             if (preserveHeaders) {
@@ -127,9 +125,8 @@ var CoverSheets;
                     numColumns += this.headerSize;
                 }
             }
-            newRange = sheet.getRange(oldRange.getRow(), oldRange.getColumn(), numRows, numColumns);
-            this.range = newRange;
-            return newRange;
+            this.range = sheet.getRange(this.range.getRow(), this.range.getColumn(), numRows, numColumns);
+            return this.range;
         }
         /**
          * Add data to the range.
@@ -191,9 +188,13 @@ var CoverSheets;
         insertObjects(matcher, objects, after = true) {
             const rangeDataBuilder = new CoverSheets.RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize)
                 .insertObjects(matcher, objects, after);
-            console.log(rangeDataBuilder.getValues());
-            this.setValues(rangeDataBuilder.getValues());
+            this.replaceData(rangeDataBuilder.getValues(), true);
         }
+        /**
+         * Sets the "values" portion of the range. If this is a headered range,
+         * the header is not modified.
+         * @param values Values to be set in the range
+         */
         setValues(values) {
             let numRows = values.length;
             let numColumns = values[0].length;

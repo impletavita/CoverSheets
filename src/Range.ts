@@ -148,8 +148,6 @@ namespace CoverSheets {
      * @param preserveHeaders if true, replace values only
      */
     replaceData(data:any[], preserveHeaders=false): GoogleAppsScript.Spreadsheet.Range {
-      let oldRange = this.range;
-
       let row = this.range.getRow();
       let column = this.range.getColumn();
 
@@ -180,11 +178,10 @@ namespace CoverSheets {
         }
       }
       
-      newRange = sheet.getRange(oldRange.getRow(), oldRange.getColumn(),
+      this.range = sheet.getRange(this.range.getRow(), this.range.getColumn(),
         numRows, numColumns);
 
-      this.range = newRange;
-      return newRange;
+      return this.range;
     }
 
     /**
@@ -267,7 +264,7 @@ namespace CoverSheets {
        const rangeDataBuilder:RangeDataBuilder = new RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize)
         .insertObjects(matcher, objects, after);
 
-      this.setValues(rangeDataBuilder.getValues());
+      this.replaceData(rangeDataBuilder.getValues(), true);
      }
 
      /**
@@ -277,7 +274,7 @@ namespace CoverSheets {
       */
     setValues(values: undefined[][]) {
       let numRows = values.length;
-        let numColumns = values[0].length;
+      let numColumns = values[0].length;
 
       const range = this.getValuesRange(numRows, numColumns).range;
       if (range) {
