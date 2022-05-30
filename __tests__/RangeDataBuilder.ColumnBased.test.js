@@ -7,7 +7,7 @@ test('getHeaders and getValues', () => {
   }
   const data = DataStubber.getData(options)
   const builder = new CoverSheets.RangeDataBuilder(data, "ColumnBased",  1);
-  console.log(data);
+
   const headers = builder.getHeaders(); 
   expect(headers).toEqual(['HEADER_1_1', 'HEADER_2_1', 'HEADER_3_1', 'HEADER_4_1']);
   let values = builder.getValues();

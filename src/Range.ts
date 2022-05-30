@@ -112,7 +112,9 @@ namespace CoverSheets {
       return this.getValuesRange().range?.getValues() ?? [];
     }
 
-    getValuesRange(): ValuesRange {
+    getValuesRange(defaultRows = 0, defaultColumns = 0): ValuesRange {
+      console.log(`getValuesRange ${defaultRows}; ${defaultColumns}`);
+
       let row = this.range.getRow();
       let column = this.range.getColumn();
       let numRows = this.range.getNumRows();
@@ -131,6 +133,9 @@ namespace CoverSheets {
         column: column,
         range: undefined,
       }
+
+      numRows = Math.max(numRows, defaultRows);
+      numColumns = Math.max(numColumns, defaultColumns);
 
       if (numRows > 0 && numColumns > 0) {
         valuesRange.range = this.range.getSheet().getRange(row, column, numRows, numColumns);
@@ -160,7 +165,6 @@ namespace CoverSheets {
       }
 
       let sheet = this.range.getSheet();
-
       
       let numRows = data.length;
       let numColumns = data[0].length;
@@ -261,12 +265,36 @@ namespace CoverSheets {
      * the specified matcher. If objects of the specfied keys already exist,
      * merge the data instead.
      */
-    addObjectsAfter<T>(matcher: (item:T) => boolean, objects:T[]) {
-      let values:T[] = this.getDataAsObjects<T>();
-      let index = values.findIndex(v => matcher(v));
-      if (index == -1) {
-        this.addObjects(objects);
-        return;
+     insertObjects<T>(matcher: (item:T) => boolean, objects:T[], after=true) {
+       const rangeDataBuilder:RangeDataBuilder = new RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize)
+        .insertObjects(matcher, objects, after);
+
+      console.log(rangeDataBuilder.getValues());
+      this.setValues(rangeDataBuilder.getValues());
+     }
+
+     /**
+      * Sets the "values" portion of the range. If this is a headered range,
+      * the header is not modified. 
+      * @param values Values to be set in the range
+      */
+    setValues(values: undefined[][]) {
+      let numRows = values.length;
+        let numColumns = values[0].length;
+
+      const range = this.getValuesRange(numRows, numColumns).range;
+      if (range) {
+        range.setValues(values);
+        let row = this.range.getRow();
+        let column = this.range.getColumn();
+
+        if (this.headerType == "ColumnBased") {
+          numColumns += this.headerSize;
+        } else {
+          numRows += this.headerSize;
+        }
+
+        this.range = this.range.getSheet().getRange(row, column, numRows, numColumns);
       }
     }
 

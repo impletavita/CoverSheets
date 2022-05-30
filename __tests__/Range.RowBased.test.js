@@ -182,14 +182,22 @@ test('Add data as objects', () => {
   expect(values.length).toEqual(4);
 })
 
-test('addObjectsAfter', () => {
+test('insertObjects', () => {
+  const options = {
+    numRows: 5,
+    numColumns: 4,
+    headerType: "RowBased",
+    headerSize: 1
+  }
+
   let range = new CoverSheets.Range({
     sheetName: "Some Sheet",
-    row: 1, column: 1, numRows: 5, numColumns: 4, 
-    headerType:"RowBased", headerSize: 1
+    row: 1, column: 1, 
+    ...options
   })
 
-  range.range.fillDefaultData();
+  const data = DataStubber.getData(options)
+  range.range.setValues(data)
 
   const headers = range.getHeaders();
   const objectsToAdd = [
@@ -201,8 +209,8 @@ test('addObjectsAfter', () => {
     },
   ];
 
-  range.addObjectsAfter(t => t.VALUE_1_3 === "VALUE_3_3", objectsToAdd);
+  range.insertObjects(t => t[headers[2]] === "VALUE_3_3", objectsToAdd);
 
   const values = range.getValues();
-  // expect(values.length).toEqual(5);
+  expect(values.length).toEqual(5);
 })

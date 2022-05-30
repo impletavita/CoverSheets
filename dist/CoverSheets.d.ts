@@ -31,7 +31,7 @@ declare namespace CoverSheets {
          */
         getValuesByHeader(header: string): undefined[];
         getValues(includeHeader?: boolean): any[][];
-        getValuesRange(): ValuesRange;
+        getValuesRange(defaultRows?: number, defaultColumns?: number): ValuesRange;
         /**
          * Replace the data in this range. Range will be resized as necessary.
          * @param data new data to replace with
@@ -54,7 +54,8 @@ declare namespace CoverSheets {
          * the specified matcher. If objects of the specfied keys already exist,
          * merge the data instead.
          */
-        addObjectsAfter<T>(matcher: (item: T) => boolean, objects: T[]): void;
+        insertObjects<T>(matcher: (item: T) => boolean, objects: T[], after?: boolean): void;
+        setValues(values: undefined[][]): void;
         getBuilder(): RangeDataBuilder;
         metadata(range?: GoogleAppsScript.Spreadsheet.Range): string;
     }
@@ -78,14 +79,14 @@ declare namespace CoverSheets {
         getDataAsObjects<T extends {}>(): T[];
         getVectorAsObject<T extends {}>(vector: any, headers: any): T;
         getValues(): undefined[][];
-        addData(data: undefined[][]): void;
+        addData(data: undefined[][]): RangeDataBuilder;
         /**
          * Add the specified array of objects after the first object that matches
          * the specified matcher. If objects of the specfied keys already exist,
          * merge the data instead.
          */
-        insertObjects<T>(matcher: (item: T) => boolean, objects: T[], after?: boolean): void;
-        addObjects(objects: any): void;
+        insertObjects<T>(matcher: (item: T) => boolean, objects: T[], after?: boolean): RangeDataBuilder;
+        addObjects(objects: any): RangeDataBuilder;
         convertObjectsToData(objects: any): undefined[][];
     }
 }

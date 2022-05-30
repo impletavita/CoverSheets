@@ -70,7 +70,7 @@ namespace CoverSheets {
       return values;
     }
 
-    addData(data:undefined[][]) {
+    addData(data:undefined[][]): RangeDataBuilder {
       // todo: Exception when data.rows/data.columns don't match this.data.length/this.data[0].length
       // todo: Add ablity to modify data to current structure or modify structure to match new data 
 
@@ -83,6 +83,8 @@ namespace CoverSheets {
           this.data.push(data[row]);
         }
       }
+
+      return this;
     }
 
     /**
@@ -91,13 +93,12 @@ namespace CoverSheets {
      * merge the data instead.
      */
     
-    insertObjects<T>(matcher: (item:T) => boolean, objects:T[], after=true) {
+    insertObjects<T>(matcher: (item:T) => boolean, objects:T[], after=true):RangeDataBuilder {
       let values:T[] = this.getDataAsObjects<T>();
       let index = values.findIndex(v => matcher(v));
 
       if (index == -1) {
-        this.addObjects(objects);
-        return;
+        return this.addObjects(objects);
       }
 
       index = index + this.headerSize + (after ? 1 : 0);
@@ -106,10 +107,12 @@ namespace CoverSheets {
         ...this.convertObjectsToData(objects),
         ...this.data.slice(index)
       ]
+
+      return this;
     }
     
-    addObjects(objects) {
-      this.addData(this.convertObjectsToData(objects));
+    addObjects(objects): RangeDataBuilder {
+      return this.addData(this.convertObjectsToData(objects));
     }
 
     convertObjectsToData(objects) {

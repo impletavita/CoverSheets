@@ -72,7 +72,8 @@ var CoverSheets;
             }
             return (_b = (_a = this.getValuesRange().range) === null || _a === void 0 ? void 0 : _a.getValues()) !== null && _b !== void 0 ? _b : [];
         }
-        getValuesRange() {
+        getValuesRange(defaultRows = 0, defaultColumns = 0) {
+            console.log(`getValuesRange ${defaultRows}; ${defaultColumns}`);
             let row = this.range.getRow();
             let column = this.range.getColumn();
             let numRows = this.range.getNumRows();
@@ -90,6 +91,8 @@ var CoverSheets;
                 column: column,
                 range: undefined,
             };
+            numRows = Math.max(numRows, defaultRows);
+            numColumns = Math.max(numColumns, defaultColumns);
             if (numRows > 0 && numColumns > 0) {
                 valuesRange.range = this.range.getSheet().getRange(row, column, numRows, numColumns);
             }
@@ -185,12 +188,27 @@ var CoverSheets;
          * the specified matcher. If objects of the specfied keys already exist,
          * merge the data instead.
          */
-        addObjectsAfter(matcher, objects) {
-            let values = this.getDataAsObjects();
-            let index = values.findIndex(v => matcher(v));
-            if (index == -1) {
-                this.addObjects(objects);
-                return;
+        insertObjects(matcher, objects, after = true) {
+            const rangeDataBuilder = new CoverSheets.RangeDataBuilder(this.range.getValues(), this.headerType, this.headerSize)
+                .insertObjects(matcher, objects, after);
+            console.log(rangeDataBuilder.getValues());
+            this.setValues(rangeDataBuilder.getValues());
+        }
+        setValues(values) {
+            let numRows = values.length;
+            let numColumns = values[0].length;
+            const range = this.getValuesRange(numRows, numColumns).range;
+            if (range) {
+                range.setValues(values);
+                let row = this.range.getRow();
+                let column = this.range.getColumn();
+                if (this.headerType == "ColumnBased") {
+                    numColumns += this.headerSize;
+                }
+                else {
+                    numRows += this.headerSize;
+                }
+                this.range = this.range.getSheet().getRange(row, column, numRows, numColumns);
             }
         }
         getBuilder() {
@@ -317,6 +335,7 @@ var CoverSheets;
                     this.data.push(data[row]);
                 }
             }
+            return this;
         }
         /**
          * Add the specified array of objects after the first object that matches
@@ -327,8 +346,7 @@ var CoverSheets;
             let values = this.getDataAsObjects();
             let index = values.findIndex(v => matcher(v));
             if (index == -1) {
-                this.addObjects(objects);
-                return;
+                return this.addObjects(objects);
             }
             index = index + this.headerSize + (after ? 1 : 0);
             this.data = [
@@ -336,9 +354,10 @@ var CoverSheets;
                 ...this.convertObjectsToData(objects),
                 ...this.data.slice(index)
             ];
+            return this;
         }
         addObjects(objects) {
-            this.addData(this.convertObjectsToData(objects));
+            return this.addData(this.convertObjectsToData(objects));
         }
         convertObjectsToData(objects) {
             const headers = this.getHeaders();
