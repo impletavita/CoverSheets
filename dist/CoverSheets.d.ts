@@ -96,6 +96,8 @@ declare namespace CoverSheets {
     }
 }
 declare namespace CoverSheets {
+    type SheetNameAndId = Pick<GoogleAppsScript.Sheets.Schema.SheetProperties, "title" | "sheetId">;
+    type SheetGroupData = Pick<GoogleAppsScript.Sheets.Schema.Sheet, "rowGroups" | "columnGroups"> & SheetNameAndId;
     class Spreadsheet {
         static getActiveWorksheet(): Worksheet;
         spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -120,6 +122,12 @@ declare namespace CoverSheets {
          */
         addSheet(sheetName: string): Worksheet;
         cloneWorksheet(source: string, destination: string, activate?: boolean): Worksheet | null;
+        /**
+         *
+         * @returns All row and column groups in the Spreadsheet
+         */
+        static getGroups(): SheetGroupData[];
+        static removeAllGroups(): void;
     }
 }
 declare namespace CoverSheets {

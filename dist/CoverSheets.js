@@ -441,6 +441,65 @@ var CoverSheets;
             activateSheet(destinationSheet);
             return destinationSheet;
         }
+        /**
+         *
+         * @returns All row and column groups in the Spreadsheet
+         */
+        static getGroups() {
+            var _a;
+            if (typeof Sheets === 'undefined') {
+                Logger.log("Sheets service not enabled for this script. Please follow instructions at " +
+                    "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
+                return [];
+            }
+            // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/sheets
+            // https://stackoverflow.com/a/52482730
+            const allSheetsWithGroupData = (_a = Sheets.Spreadsheets) === null || _a === void 0 ? void 0 : _a.get(SpreadsheetApp.getActive().getId(), {
+                fields: "sheets(columnGroups,properties(sheetId,title),rowGroups)"
+            }).sheets;
+            const sheetGroupData = [];
+            allSheetsWithGroupData === null || allSheetsWithGroupData === void 0 ? void 0 : allSheetsWithGroupData.forEach(s => {
+                var _a, _b;
+                sheetGroupData.push({
+                    title: (_a = s.properties) === null || _a === void 0 ? void 0 : _a.title,
+                    sheetId: (_b = s.properties) === null || _b === void 0 ? void 0 : _b.sheetId,
+                    rowGroups: s.rowGroups,
+                    columnGroups: s.columnGroups
+                });
+            });
+            return sheetGroupData;
+        }
+        static removeAllGroups() {
+            var _a;
+            if (typeof Sheets === 'undefined') {
+                Logger.log("Sheets service not enabled for this script. Please follow instructions at " +
+                    "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
+                return;
+            }
+            const sheetsWithGroups = Spreadsheet.getGroups();
+            const removeRequests = [];
+            const getDeleteGroupRequest = (sheetId, dimension) => {
+                return {
+                    deleteDimensionGroup: {
+                        range: { sheetId: sheetId,
+                            dimension: dimension }
+                    }
+                };
+            };
+            sheetsWithGroups.forEach(s => {
+                let maxColGroupDepth = Math.max(...s.columnGroups.map(g => { var _a; return (_a = g.depth) !== null && _a !== void 0 ? _a : 0; }));
+                let maxRowGroupDepth = Math.max(...s.rowGroups.map(g => { var _a; return (_a = g.depth) !== null && _a !== void 0 ? _a : 0; }));
+                for (let i = 0; i < maxColGroupDepth; i++) {
+                    removeRequests.push(getDeleteGroupRequest(s.sheetId, "COLUMNS"));
+                }
+                for (let i = 0; i < maxRowGroupDepth; i++) {
+                    removeRequests.push(getDeleteGroupRequest(s.sheetId, "ROW"));
+                }
+            });
+            if (removeRequests.length) {
+                (_a = Sheets.Spreadsheets) === null || _a === void 0 ? void 0 : _a.batchUpdate({ requests: removeRequests }, SpreadsheetApp.getActive().getId());
+            }
+        }
     }
     CoverSheets.Spreadsheet = Spreadsheet;
 })(CoverSheets || (CoverSheets = {}));

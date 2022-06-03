@@ -1,4 +1,10 @@
 namespace CoverSheets {
+  
+  export type SheetNameAndId = Pick<GoogleAppsScript.Sheets.Schema.SheetProperties,
+    "title" | "sheetId">;
+  export type SheetGroupData = Pick<GoogleAppsScript.Sheets.Schema.Sheet, 
+    "rowGroups" | "columnGroups"> & SheetNameAndId;
+
   export class Spreadsheet {
 
     static getActiveWorksheet(): Worksheet {
@@ -80,6 +86,77 @@ namespace CoverSheets {
       activateSheet(destinationSheet);
 
       return destinationSheet;
+    }
+
+    /**
+     * 
+     * @returns All row and column groups in the Spreadsheet
+     */
+    static getGroups():SheetGroupData[] {
+      if (typeof Sheets === 'undefined') {
+        Logger.log("Sheets service not enabled for this script. Please follow instructions at " + 
+          "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
+    
+        return [];
+      }
+
+      // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/sheets
+      // https://stackoverflow.com/a/52482730
+
+      const allSheetsWithGroupData = Sheets.Spreadsheets?.get(SpreadsheetApp.getActive().getId(), {
+        fields: "sheets(columnGroups,properties(sheetId,title),rowGroups)"
+      }).sheets;
+
+      const sheetGroupData : SheetGroupData[] = [];
+      allSheetsWithGroupData?.forEach(s => {
+        sheetGroupData.push({
+          title: s.properties?.title,
+          sheetId: s.properties?.sheetId,
+          rowGroups: s.rowGroups,
+          columnGroups: s.columnGroups
+        })
+      });
+      return sheetGroupData;
+    }
+
+    static removeAllGroups() {
+      if (typeof Sheets === 'undefined') {
+        Logger.log("Sheets service not enabled for this script. Please follow instructions at " + 
+          "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
+    
+        return;
+      }
+
+      const sheetsWithGroups: SheetGroupData[] = Spreadsheet.getGroups();
+      const removeRequests:any[] = [];
+      const getDeleteGroupRequest = (sheetId:number, dimension:string) => {
+        return {
+            deleteDimensionGroup: {
+              range: { sheetId: sheetId,
+                     dimension: dimension }
+            }
+        }
+      }
+
+      sheetsWithGroups.forEach(s => {
+        let maxColGroupDepth = 
+          Math.max(...s.columnGroups!.map(g => g.depth ?? 0));
+        let maxRowGroupDepth = 
+          Math.max(...s.rowGroups!.map(g => g.depth ?? 0));
+        for(let i = 0; i < maxColGroupDepth; i++) {
+          removeRequests.push(getDeleteGroupRequest(s.sheetId!, "COLUMNS"))
+        }
+
+        for(let i = 0; i < maxRowGroupDepth; i++) {
+          removeRequests.push(getDeleteGroupRequest(s.sheetId!, "ROW"))
+        }
+
+      })
+
+      if (removeRequests.length) {
+        Sheets.Spreadsheets?.batchUpdate({requests: removeRequests}, 
+          SpreadsheetApp.getActive().getId());
+      }
     }
   }
 }
