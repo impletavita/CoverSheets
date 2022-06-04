@@ -1,10 +1,9 @@
 /// <reference path="../dist/CoverSheets.d.ts" />
 
 
-function buildSprintsAndQuarters() {
-  const today = new Date();
-  
-} 
+function removeAllGroups() {
+  CoverSheets.Spreadsheet.removeAllGroups();
+}
 
 function testRangeWithOneHeaderColumn() {
   const range = new CoverSheets.NamedRange("MySheet!RangeWithOneHeaderColumn", 

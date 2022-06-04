@@ -192,6 +192,10 @@ class Spreadsheet {
   
   }
 
+  getId() {
+    return this.id ?? (this.id = Math.random().toString(36).slice(2, 10))
+  }
+
   sheets = [
     'Worksheet1', 
     'Some Sheet', 
@@ -248,6 +252,8 @@ global.SpreadsheetApp = {
   getActiveSheet: () => {
     return new Sheet('ActiveSheet');
   },
+
+  getActive: () => activeSpreadsheet,
 
   getActiveSpreadsheet: () => activeSpreadsheet,
 };
@@ -332,6 +338,18 @@ CoverSheets.Range.prototype.setDefaultData = function() {
   this.range.setValues(values);
   
   return values;
+}
+
+global.Sheets =  {
+  Spreadsheets: {
+    // for now, just return a list of rowGroups irrespective of 
+    // id and fields
+    get: (id, fields) => {
+      return {
+        "sheets":[{"properties":{"sheetId":0,"title":"Test Sheet"},"rowGroups":[{"range":{"startIndex":1,"dimension":"ROWS","endIndex":8},"depth":1},{"depth":2,"range":{"startIndex":3,"endIndex":6,"dimension":"ROWS"}}]},{"properties":{"title":"Copy of Test Sheet","sheetId":1031044890}},{"rowGroups":[{"range":{"endIndex":9,"sheetId":38888447,"startIndex":5,"dimension":"ROWS"},"depth":1}],"properties":{"sheetId":38888447,"title":"MySheet"}}]
+      }
+    }
+  }
 }
 
 global.CoverSheets = CoverSheets;

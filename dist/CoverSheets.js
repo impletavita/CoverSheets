@@ -487,13 +487,19 @@ var CoverSheets;
                 };
             };
             sheetsWithGroups.forEach(s => {
-                let maxColGroupDepth = Math.max(...s.columnGroups.map(g => { var _a; return (_a = g.depth) !== null && _a !== void 0 ? _a : 0; }));
-                let maxRowGroupDepth = Math.max(...s.rowGroups.map(g => { var _a; return (_a = g.depth) !== null && _a !== void 0 ? _a : 0; }));
+                let maxColGroupDepth = 0;
+                if (s.columnGroups) {
+                    maxColGroupDepth = Math.max(...s.columnGroups.map(g => { var _a; return (_a = g.depth) !== null && _a !== void 0 ? _a : 0; }));
+                }
+                let maxRowGroupDepth = 0;
+                if (s.rowGroups) {
+                    maxRowGroupDepth = Math.max(...s.rowGroups.map(g => { var _a; return (_a = g.depth) !== null && _a !== void 0 ? _a : 0; }));
+                }
                 for (let i = 0; i < maxColGroupDepth; i++) {
                     removeRequests.push(getDeleteGroupRequest(s.sheetId, "COLUMNS"));
                 }
                 for (let i = 0; i < maxRowGroupDepth; i++) {
-                    removeRequests.push(getDeleteGroupRequest(s.sheetId, "ROW"));
+                    removeRequests.push(getDeleteGroupRequest(s.sheetId, "ROWS"));
                 }
             });
             if (removeRequests.length) {
