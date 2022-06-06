@@ -86,12 +86,22 @@ declare namespace CoverSheets {
         getValues(): undefined[][];
         addData(data: undefined[][]): RangeDataBuilder;
         /**
-         * Add the specified array of objects after the first object that matches
-         * the specified matcher. If objects of the specfied keys already exist,
-         * merge the data instead.
+         * Add the specified array of objects after or before the first object that matches
+         * the specified matcher.
          */
         insertObjects<T>(matcher: (item: T) => boolean, objects: T[], after?: boolean): RangeDataBuilder;
+        /**
+         * Adds the spcified objects to the end
+         * @param objects to add
+         * @returns RangeDataBuilder, for chaining
+         */
         addObjects(objects: any): RangeDataBuilder;
+        /**
+         * Updates existing objects, using the matcher to determine equality
+         * @param matcher predicate used for determining a match to an existing object
+         * @param objects Objects to update
+         */
+        updateObjects<T>(matcher: (existingItem: T, newItem: T) => boolean, objects: T[]): this;
         convertObjectsToData(objects: any): undefined[][];
     }
 }

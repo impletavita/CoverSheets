@@ -339,9 +339,8 @@ var CoverSheets;
             return this;
         }
         /**
-         * Add the specified array of objects after the first object that matches
-         * the specified matcher. If objects of the specfied keys already exist,
-         * merge the data instead.
+         * Add the specified array of objects after or before the first object that matches
+         * the specified matcher.
          */
         insertObjects(matcher, objects, after = true) {
             let values = this.getDataAsObjects();
@@ -357,8 +356,36 @@ var CoverSheets;
             ];
             return this;
         }
+        /**
+         * Adds the spcified objects to the end
+         * @param objects to add
+         * @returns RangeDataBuilder, for chaining
+         */
         addObjects(objects) {
             return this.addData(this.convertObjectsToData(objects));
+        }
+        /**
+         * Updates existing objects, using the matcher to determine equality
+         * @param matcher predicate used for determining a match to an existing object
+         * @param objects Objects to update
+         */
+        updateObjects(matcher, objects) {
+            let values = this.getDataAsObjects();
+            let updateData = this.convertObjectsToData(objects);
+            let newData = [];
+            objects.forEach((o, i) => {
+                let index = values.findIndex(v => matcher(v, o));
+                if (index > -1) {
+                    this.data[index + this.headerSize] = updateData[i];
+                }
+                else {
+                    newData.push(updateData[i]);
+                }
+            });
+            if (newData.length > 0) {
+                this.addData(newData);
+            }
+            return this;
         }
         convertObjectsToData(objects) {
             const headers = this.getHeaders();
