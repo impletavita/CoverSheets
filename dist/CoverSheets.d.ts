@@ -97,7 +97,8 @@ declare namespace CoverSheets {
          */
         addObjects(objects: any): RangeDataBuilder;
         /**
-         * Updates existing objects, using the matcher to determine equality
+         * Updates existing objects, using the matcher to determine equality. Objects
+         * with no matches are added to the end.
          * @param matcher predicate used for determining a match to an existing object
          * @param objects Objects to update
          */
