@@ -405,6 +405,37 @@ var CoverSheets;
 })(CoverSheets || (CoverSheets = {}));
 var CoverSheets;
 (function (CoverSheets) {
+    class RowGroup {
+        /**
+         * Determines grouping information based on the structure of the
+         * rootNodes passed in. Groups are not created for the top level
+         * rootNodes, only for their descendants.
+         * @param rootNodes The tree structure that defines the grouping behavior
+         */
+        static getGroupData(rootNodes, startRow = 1, depth = 0) {
+            const groupData = [];
+            rootNodes === null || rootNodes === void 0 ? void 0 : rootNodes.forEach((r, index) => {
+                var _a, _b;
+                startRow++;
+                let numChildren = (_b = (_a = r.children) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0;
+                if (numChildren > 0) {
+                    let descendantGroupData = RowGroup.getGroupData(r.children, startRow, depth + 1);
+                    numChildren += descendantGroupData.reduce((a, b) => a + b.numChildren, 0);
+                    if (descendantGroupData.length > 0) {
+                        groupData.push(...descendantGroupData);
+                    }
+                    groupData.push({ startRow: startRow, numChildren: numChildren, depth: depth + 1 });
+                }
+                console.log(`startRow: ${startRow}, numChildren: ${numChildren}, index:${index}, depth: ${depth}`);
+                startRow += numChildren;
+            });
+            return groupData;
+        }
+    }
+    CoverSheets.RowGroup = RowGroup;
+})(CoverSheets || (CoverSheets = {}));
+var CoverSheets;
+(function (CoverSheets) {
     class Spreadsheet {
         constructor(spreadsheet) {
             if (!spreadsheet) {
@@ -631,6 +662,7 @@ var CoverSheets;
 var Range = CoverSheets.Range;
 var NamedRange = CoverSheets.NamedRange;
 var RangeDataBuilder = CoverSheets.RangeDataBuilder;
+var RowGroup = CoverSheets.RowGroup;
 var Spreadsheet = CoverSheets.Spreadsheet;
 var Utils = CoverSheets.Utils;
 var Worksheet = CoverSheets.Worksheet;
@@ -638,6 +670,7 @@ var exports = exports || {};
 exports.Range = CoverSheets.Range;
 exports.NamedRange = CoverSheets.NamedRange;
 exports.RangeDataBuilder = CoverSheets.RangeDataBuilder;
+exports.RowGroup = CoverSheets.RowGroup;
 exports.Spreadsheet = CoverSheets.Spreadsheet;
 exports.Utils = CoverSheets.Utils;
 exports.Worksheet = CoverSheets.Worksheet;

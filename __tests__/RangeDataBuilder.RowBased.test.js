@@ -1,4 +1,3 @@
-const { logger } = require("bs-logger");
 
 test('getHeaders and getValues', () => {
   const options = {

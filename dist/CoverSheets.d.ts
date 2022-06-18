@@ -107,6 +107,25 @@ declare namespace CoverSheets {
     }
 }
 declare namespace CoverSheets {
+    type TreeNode<T> = T & {
+        children?: T[];
+    };
+    interface GroupInfo {
+        startRow: number;
+        numChildren: number;
+        depth: number;
+    }
+    class RowGroup {
+        /**
+         * Determines grouping information based on the structure of the
+         * rootNodes passed in. Groups are not created for the top level
+         * rootNodes, only for their descendants.
+         * @param rootNodes The tree structure that defines the grouping behavior
+         */
+        static getGroupData<T>(rootNodes: TreeNode<T>[], startRow?: number, depth?: number): GroupInfo[];
+    }
+}
+declare namespace CoverSheets {
     type SheetNameAndId = Pick<GoogleAppsScript.Sheets.Schema.SheetProperties, "title" | "sheetId">;
     type SheetGroupData = Pick<GoogleAppsScript.Sheets.Schema.Sheet, "rowGroups" | "columnGroups"> & SheetNameAndId;
     class Spreadsheet {
