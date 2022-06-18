@@ -414,7 +414,7 @@ var CoverSheets;
          */
         static getGroupData(rootNodes, startRow = 1, depth = 0) {
             const groupData = [];
-            rootNodes === null || rootNodes === void 0 ? void 0 : rootNodes.forEach((r, index) => {
+            rootNodes === null || rootNodes === void 0 ? void 0 : rootNodes.forEach(r => {
                 var _a, _b;
                 startRow++;
                 let numChildren = (_b = (_a = r.children) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0;
@@ -426,7 +426,6 @@ var CoverSheets;
                     }
                     groupData.push({ startRow: startRow, numChildren: numChildren, depth: depth + 1 });
                 }
-                console.log(`startRow: ${startRow}, numChildren: ${numChildren}, index:${index}, depth: ${depth}`);
                 startRow += numChildren;
             });
             return groupData;
