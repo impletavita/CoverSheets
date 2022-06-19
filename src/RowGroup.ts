@@ -1,10 +1,10 @@
 namespace CoverSheets {
   export type TreeNode<T> = T & { 
-    children?: T[]
+    children?: TreeNode<T>[]
   }
 
   export interface GroupInfo {
-    startRow: number;
+    startIndex: number;
     numChildren: number;
     depth: number;
   }
@@ -20,17 +20,17 @@ namespace CoverSheets {
       const groupData:GroupInfo[] = [];
 
       rootNodes?.forEach(r => {
-        startRow++;
+      
         let numChildren = r.children?.length ?? 0;
         if (numChildren > 0) {
-          let descendantGroupData = RowGroup.getGroupData(r.children!, startRow, depth + 1);
+          let descendantGroupData = RowGroup.getGroupData(r.children!, startRow + 1, depth + 1);
           numChildren += descendantGroupData.reduce((a,b) => a + b.numChildren, 0);
           if (descendantGroupData.length > 0) {
             groupData.push(...descendantGroupData);
           }
-          groupData.push({startRow: startRow, numChildren:numChildren, depth:depth + 1})
+          groupData.push({startIndex: startRow, numChildren:numChildren, depth:depth + 1})
         }
-        startRow += numChildren;
+        startRow += numChildren + 1;
       })
 
       return groupData;

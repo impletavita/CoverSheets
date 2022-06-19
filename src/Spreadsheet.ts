@@ -5,6 +5,8 @@ namespace CoverSheets {
   export type SheetGroupData = Pick<GoogleAppsScript.Sheets.Schema.Sheet, 
     "rowGroups" | "columnGroups"> & SheetNameAndId;
 
+  export type AddGroupInfo = GroupInfo & {sheetId: number; dimension: "ROWS" | "COLUMNS"};
+    
   export class Spreadsheet {
 
     static getActiveWorksheet(): Worksheet {
@@ -93,12 +95,10 @@ namespace CoverSheets {
      * @returns All row and column groups in the Spreadsheet
      */
     static getGroups():SheetGroupData[] {
-      if (typeof Sheets === 'undefined') {
-        Logger.log("Sheets service not enabled for this script. Please follow instructions at " + 
-          "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
-    
+      if(!Utils.IsSheetsServiceAvailable()) {
         return [];
       }
+
 
       // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/sheets
       // https://stackoverflow.com/a/52482730
@@ -120,10 +120,7 @@ namespace CoverSheets {
     }
 
     static removeAllGroups() {
-      if (typeof Sheets === 'undefined') {
-        Logger.log("Sheets service not enabled for this script. Please follow instructions at " + 
-          "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
-    
+      if(!Utils.IsSheetsServiceAvailable()) {
         return;
       }
 
@@ -159,6 +156,35 @@ namespace CoverSheets {
 
       if (removeRequests.length) {
         Sheets.Spreadsheets?.batchUpdate({requests: removeRequests}, 
+          SpreadsheetApp.getActive().getId());
+      }
+    }
+    
+    static addGroups(groups:AddGroupInfo[]) {
+      if(!Utils.IsSheetsServiceAvailable()) {
+        return;
+      }
+      
+      const getAddGroupRequest = (g:AddGroupInfo) => {
+        return {
+          "addDimensionGroup": {
+            "range": {
+              "dimension": g.dimension,
+              "sheetId": g.sheetId,
+              "startIndex": g.startIndex,
+              "endIndex": g.startIndex + g.numChildren
+            }
+          }
+        }
+      }
+      const addRequests:any[] = [];
+
+      groups.forEach(g =>{
+        addRequests.push(getAddGroupRequest(g))
+      })
+      
+      if (addRequests.length > 0) {
+        Sheets.Spreadsheets?.batchUpdate({requests: addRequests}, 
           SpreadsheetApp.getActive().getId());
       }
     }

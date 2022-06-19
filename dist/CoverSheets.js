@@ -416,17 +416,16 @@ var CoverSheets;
             const groupData = [];
             rootNodes === null || rootNodes === void 0 ? void 0 : rootNodes.forEach(r => {
                 var _a, _b;
-                startRow++;
                 let numChildren = (_b = (_a = r.children) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0;
                 if (numChildren > 0) {
-                    let descendantGroupData = RowGroup.getGroupData(r.children, startRow, depth + 1);
+                    let descendantGroupData = RowGroup.getGroupData(r.children, startRow + 1, depth + 1);
                     numChildren += descendantGroupData.reduce((a, b) => a + b.numChildren, 0);
                     if (descendantGroupData.length > 0) {
                         groupData.push(...descendantGroupData);
                     }
-                    groupData.push({ startRow: startRow, numChildren: numChildren, depth: depth + 1 });
+                    groupData.push({ startIndex: startRow, numChildren: numChildren, depth: depth + 1 });
                 }
-                startRow += numChildren;
+                startRow += numChildren + 1;
             });
             return groupData;
         }
@@ -505,9 +504,7 @@ var CoverSheets;
          */
         static getGroups() {
             var _a;
-            if (typeof Sheets === 'undefined') {
-                Logger.log("Sheets service not enabled for this script. Please follow instructions at " +
-                    "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
+            if (!CoverSheets.Utils.IsSheetsServiceAvailable()) {
                 return [];
             }
             // https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/sheets
@@ -529,9 +526,7 @@ var CoverSheets;
         }
         static removeAllGroups() {
             var _a;
-            if (typeof Sheets === 'undefined') {
-                Logger.log("Sheets service not enabled for this script. Please follow instructions at " +
-                    "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
+            if (!CoverSheets.Utils.IsSheetsServiceAvailable()) {
                 return;
             }
             const sheetsWithGroups = Spreadsheet.getGroups();
@@ -564,12 +559,45 @@ var CoverSheets;
                 (_a = Sheets.Spreadsheets) === null || _a === void 0 ? void 0 : _a.batchUpdate({ requests: removeRequests }, SpreadsheetApp.getActive().getId());
             }
         }
+        static addGroups(groups) {
+            var _a;
+            if (!CoverSheets.Utils.IsSheetsServiceAvailable()) {
+                return;
+            }
+            const getAddGroupRequest = (g) => {
+                return {
+                    "addDimensionGroup": {
+                        "range": {
+                            "dimension": g.dimension,
+                            "sheetId": g.sheetId,
+                            "startIndex": g.startIndex,
+                            "endIndex": g.startIndex + g.numChildren
+                        }
+                    }
+                };
+            };
+            const addRequests = [];
+            groups.forEach(g => {
+                addRequests.push(getAddGroupRequest(g));
+            });
+            if (addRequests.length > 0) {
+                (_a = Sheets.Spreadsheets) === null || _a === void 0 ? void 0 : _a.batchUpdate({ requests: addRequests }, SpreadsheetApp.getActive().getId());
+            }
+        }
     }
     CoverSheets.Spreadsheet = Spreadsheet;
 })(CoverSheets || (CoverSheets = {}));
 var CoverSheets;
 (function (CoverSheets) {
     class Utils {
+        static IsSheetsServiceAvailable() {
+            if (typeof Sheets === 'undefined') {
+                Logger.log("Sheets service not enabled for this script. Please follow instructions at " +
+                    "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
+                return false;
+            }
+            return true;
+        }
         static showError(message) {
             SpreadsheetApp.getUi()
                 .showModalDialog(HtmlService.createHtmlOutput(message), 'An error occurred');

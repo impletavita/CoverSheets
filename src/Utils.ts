@@ -5,6 +5,17 @@ namespace CoverSheets {
 
 namespace CoverSheets {
   export class Utils  {
+    static IsSheetsServiceAvailable():boolean {
+      if (typeof Sheets === 'undefined') {
+        Logger.log("Sheets service not enabled for this script. Please follow instructions at " + 
+          "https://developers.google.com/apps-script/guides/services/advanced#enable_advanced_services to enble the Sheets service");
+    
+        return false;
+      }
+
+      return true;
+    }
+
     static showError(message: string) {
       SpreadsheetApp.getUi()
         .showModalDialog(HtmlService.createHtmlOutput(message), 'An error occurred');

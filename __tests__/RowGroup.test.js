@@ -20,9 +20,9 @@ test("rootNodes with 1 level of children", () => {
   let groups = CoverSheets.RowGroup.getGroupData(rootNodes);
   expect(groups).toMatchObject([
     {
-      startRow: 2,
+      depth: 1,
       numChildren: 3,
-      depth: 1
+      startIndex: 1,
     }
   ])
 
@@ -31,9 +31,9 @@ test("rootNodes with 1 level of children", () => {
   groups = CoverSheets.RowGroup.getGroupData(rootNodes);
   expect(groups).toMatchObject([
     {
-      startRow: 3,
+      depth: 1,
       numChildren: 3,
-      depth: 1
+      startIndex: 2,
     }
   ])
 
@@ -42,9 +42,9 @@ test("rootNodes with 1 level of children", () => {
   groups = CoverSheets.RowGroup.getGroupData(rootNodes);
   expect(groups).toMatchObject([
     {
-      startRow: 4,
+      depth: 1,
       numChildren: 3,
-      depth: 1
+      startIndex: 3,
     }
   ])
 
@@ -57,12 +57,12 @@ test("rootNodes with 1 level of children", () => {
   groups = CoverSheets.RowGroup.getGroupData(rootNodes);
   expect(groups).toMatchObject([
     {
-      startRow: 4,
+      startIndex: 3,
       numChildren: 3,
       depth: 1
     },
     {
-      startRow: 8,
+      startIndex: 7,
       numChildren: 2,
       depth: 1
     }
@@ -88,7 +88,7 @@ test("2 levels of children", () => {
     {
       depth: 1,
       numChildren: 6,
-      startRow: 2
+      startIndex: 1
     }
   )
 
@@ -96,7 +96,7 @@ test("2 levels of children", () => {
     {
       depth: 2,
       numChildren: 3,
-      startRow: 3
+      startIndex: 2
     }
   )
 

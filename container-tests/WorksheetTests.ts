@@ -1,5 +1,48 @@
 /// <reference path="../dist/CoverSheets.d.ts" />
 
+function addGroups() {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Groups");
+  if (!sheet) {
+    CoverSheets.Utils.toast(`Sheet named "Groups" not found`);
+    return;
+  }
+
+  const tree:CoverSheets.TreeNode<{name:string}>[] = [
+    {name:"Saga 2"},
+    {name:"Saga 3"},    
+    {
+      name: "Saga 1",
+      children: [
+        {name: "Epic 1-4"},
+        {
+          name: "Epic 1-1",
+          children: [
+            {name: "Story-1-1-1"},
+            {name: "Story-1-1-2"},
+            {name: "Story-1-1-3"},
+          ]
+        },
+        {
+          name: "Epic 1-2"
+        },
+        {
+          name: "Epic 1-3"
+        }
+      ]
+    }
+  ]
+  
+  const sheetId = sheet.getSheetId();
+  const groupData:CoverSheets.AddGroupInfo[] = CoverSheets.RowGroup.getGroupData(tree, 9)
+    .map(g => {
+      const addGroup = g as CoverSheets.AddGroupInfo;
+      addGroup.sheetId = sheetId;
+      addGroup.dimension = "ROWS";
+      return addGroup;
+    })
+  
+  CoverSheets.Spreadsheet.addGroups(groupData);
+}
 
 function removeAllGroups() {
   CoverSheets.Spreadsheet.removeAllGroups();

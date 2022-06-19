@@ -108,10 +108,10 @@ declare namespace CoverSheets {
 }
 declare namespace CoverSheets {
     type TreeNode<T> = T & {
-        children?: T[];
+        children?: TreeNode<T>[];
     };
     interface GroupInfo {
-        startRow: number;
+        startIndex: number;
         numChildren: number;
         depth: number;
     }
@@ -128,6 +128,10 @@ declare namespace CoverSheets {
 declare namespace CoverSheets {
     type SheetNameAndId = Pick<GoogleAppsScript.Sheets.Schema.SheetProperties, "title" | "sheetId">;
     type SheetGroupData = Pick<GoogleAppsScript.Sheets.Schema.Sheet, "rowGroups" | "columnGroups"> & SheetNameAndId;
+    type AddGroupInfo = GroupInfo & {
+        sheetId: number;
+        dimension: "ROWS" | "COLUMNS";
+    };
     class Spreadsheet {
         static getActiveWorksheet(): Worksheet;
         spreadsheet: GoogleAppsScript.Spreadsheet.Spreadsheet;
@@ -158,6 +162,7 @@ declare namespace CoverSheets {
          */
         static getGroups(): SheetGroupData[];
         static removeAllGroups(): void;
+        static addGroups(groups: AddGroupInfo[]): void;
     }
 }
 declare namespace CoverSheets {
@@ -166,6 +171,7 @@ declare namespace CoverSheets {
 }
 declare namespace CoverSheets {
     class Utils {
+        static IsSheetsServiceAvailable(): boolean;
         static showError(message: string): void;
         static log(message: string, logType?: LogType, key?: string): void;
         static getProperties(propType: PropertiesType): GoogleAppsScript.Properties.Properties;
