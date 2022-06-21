@@ -1,9 +1,7 @@
 const path = require('path');
 const fs = require("fs");
 
-//const src = path.join(__dirname, "../lib/CoverSheets.js")
 const dest = path.join(__dirname, "../dist/CoverSheets.js");
-//fs.renameSync(src, dest);
 
 const fd = fs.openSync(dest, 'a+', 0o666,);
 const content = fs.readFileSync(fd, 'utf8');
