@@ -1,4 +1,6 @@
 /// <reference types="google-apps-script" />
+/// <reference types="google-apps-script" />
+/// <reference types="google-apps-script" />
 declare namespace CoverSheets {
     type HeaderType = "None" | "RowBased" | "ColumnBased";
     type RangeOptions = {
